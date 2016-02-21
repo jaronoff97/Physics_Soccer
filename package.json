@@ -4,7 +4,8 @@
   "description": "This game uses charges for a multiplayer soccer game",
   "main": "server.js",
   "scripts": {
-    "test": "node server.js"
+    "test": "node server.js",
+    "run": "nodemon ./server.js localhost 3000"
   },
   "keywords": [
     "node",
