@@ -1,0 +1,22 @@
+{
+  "name": "physics_soccer",
+  "version": "1.0.0",
+  "description": "This game uses charges for a multiplayer soccer game",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "keywords": [
+    "node",
+    "socket",
+    "io",
+    "game",
+    "physics"
+  ],
+  "author": "Jacob Aronoff",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.10.2",
+    "socket.io": "^1.4.5"
+  }
+}
