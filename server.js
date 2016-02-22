@@ -11,27 +11,44 @@ server.listen(port, function() {
 app.use(express.static(__dirname + '/public'));
 // Chatroom
 var numUsers = 0;
-var team1 = [];
-var team2 = [];
+var players = [];
+var team1 = true;
+function guidGenerator() {
+    var S4 = function() {
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+}
 var addUserToTeam = function(username) {
     var user = {
         "name": username,
         "xpos": 0,
         "ypos": 0,
-        "charge": ""
+        "charge": "",
+        "id": guidGenerator()
     };
-    if (team1.length == team2.length) {
+    if (team1==true) {
         user["xpos"] = 100;
-        user["ypos"] = team1.length * 50 + 50;
+        user["ypos"] = players.length * 50 + 50;
         user["charge"] = "Positive";
-        team1.push(user);
-    } else if (team1.length > team2.length) {
+        players.push(user);
+        team1=false;
+    } else {
         user["xpos"] = 600;
-        user["ypos"] = team2.length * 50 + 50;
-        user["charge"] = "Positive";
-        team2.push(user);
+        user["ypos"] = players.length * 50 + 50;
+        user["charge"] = "Negative";
+        players.push(user);
+        team1=true;
     }
     return (user);
+}
+function findIndexOfUser(id){
+    for (var i = 0; i < players.length; i++) {
+        if(players[i]["id"]==id){
+            return(i);
+        }
+    }
+    return(-1);
 }
 io.on('connection', function(socket) {
     var addedUser = false;
@@ -43,6 +60,16 @@ io.on('connection', function(socket) {
             message: data
         });
     });
+    /*socket.on('move', function(data){
+        var idOfUser = findIndexOfUser(data.id);
+        players[idOfUser]["xpos"]=data.xpos;
+        players[idOfUser]["ypos"]=data.ypos;
+        socket.broadcast.emit('move user',{
+            id:idOfUser,
+            xpos: players[idOfUser]["xpos"],
+            ypos:players[idOfUser]["ypos"]
+        });
+    });*/
     // when the client emits 'add user', this listens and executes
     socket.on('add user', function(username) {
         if (addedUser) return;
@@ -52,7 +79,9 @@ io.on('connection', function(socket) {
         socket.emit('give position', {
             xpos: user["xpos"],
             ypos: user["ypos"],
-            charge: user["charge"]
+            charge: user["charge"],
+            id: user["id"],
+            users: players.slice(0,players.length-1)
         })
         ++numUsers;
         addedUser = true;
@@ -63,6 +92,7 @@ io.on('connection', function(socket) {
         socket.broadcast.emit('user joined', {
             username: socket.username,
             numUsers: numUsers,
+            user: user
         });
     });
     // when the user disconnects.. perform this
