@@ -63,16 +63,15 @@ io.on('connection', function(socket) {
         });
     });
     socket.on('move', function(data) {
-        var idOfUser = findIndexOfUser(data.id);
-        if (idOfUser != -1) {
-            players[idOfUser]["xpos"] = data.xpos;
-            players[idOfUser]["ypos"] = data.ypos;
-            console.log(players[idOfUser]);
-            /*socket.broadcast.emit('move user', {
-                id: idOfUser,
-                xpos: players[idOfUser]["xpos"],
-                ypos: players[idOfUser]["ypos"]
-            });*/
+        var indexOfUser = findIndexOfUser(data.id);
+        if (indexOfUser != -1) {
+            players[indexOfUser]["xpos"] = data.xpos;
+            players[indexOfUser]["ypos"] = data.ypos;
+            socket.broadcast.emit('move user', {
+                id: players[indexOfUser]["id"],
+                xpos: players[indexOfUser]["xpos"],
+                ypos: players[indexOfUser]["ypos"]
+            });
         }
     });
     // when the client emits 'add user', this listens and executes

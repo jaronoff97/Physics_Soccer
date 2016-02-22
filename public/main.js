@@ -23,8 +23,11 @@ function findIndexOfUser(id) {
     }
     return (-1);
 }
-socket.on('move user', function(data){
-    players[findIndexOfUser(data.id)].updatePos(data);
+socket.on('move user', function(data) {
+    var indexOfUser = findIndexOfUser(data.id);
+    if (indexOfUser != -1) {
+        players[indexOfUser].updatePos(data);
+    }
 });
 
 function keyDown(event) {

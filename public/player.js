@@ -41,5 +41,8 @@ function Player(options) {
     player.getId = function() {
         return id;
     }
+    player.print = function() {
+        return (xpos+" "+ypos+" "+radius+" "+id+" "+name );
+    }
     return player;
 }
