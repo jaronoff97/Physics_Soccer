@@ -12,6 +12,8 @@ app.use(express.static(__dirname + '/public'));
 // Chatroom
 var numUsers = 0;
 var players = [];
+var ballX = 350,
+    ballY = 300;
 var team1 = true;
 
 function guid() {
@@ -81,11 +83,15 @@ io.on('connection', function(socket) {
         socket.username = username;
         var user = addUserToTeam(username);
         socket.emit('give position', {
-                xpos: user["xpos"],
-                ypos: user["ypos"],
-                charge: user["charge"],
-                id: user["id"],
-                users: players.slice(0, players.length - 1)
+            xpos: user["xpos"],
+            ypos: user["ypos"],
+            charge: user["charge"],
+            id: user["id"],
+            users: players.slice(0, players.length - 1)
+        })
+        socket.emit('give ball position', {
+                xpos: ballX,
+                ypos: ballY
             })
             ++numUsers;
         addedUser = true;

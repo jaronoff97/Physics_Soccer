@@ -6,7 +6,8 @@ var initialX = 100,
     initalY = 100,
     username;
 ctx = canvas.getContext('2d');
-var player1 = null;
+var player1 = null,
+    ball = null;
 var keystate = {
     "Up": false,
     "Down": false,
@@ -22,72 +23,6 @@ function findIndexOfUser(id) {
         }
     }
     return (-1);
-}
-socket.on('move user', function(data) {
-    var indexOfUser = findIndexOfUser(data.id);
-    if (indexOfUser != -1) {
-        players[indexOfUser].updatePos(data);
-    }
-});
-
-function keyDown(event) {
-    var keyString = String.fromCharCode(event.keyCode);
-    switch (keyString) {
-        case "W":
-            {
-                keystate["Up"] = true;
-                break;
-            }
-        case "A":
-            {
-                keystate["Left"] = true;
-                break;
-            }
-        case "S":
-            {
-                keystate["Down"] = true;
-                break;
-            }
-        case "D":
-            {
-                keystate["Right"] = true;
-                break;
-            }
-        default:
-            {
-                break;
-            }
-    }
-}
-
-function keyUp(event) {
-    var keyString = String.fromCharCode(event.keyCode);
-    switch (keyString) {
-        case "W":
-            {
-                keystate["Up"] = false;
-                break;
-            }
-        case "A":
-            {
-                keystate["Left"] = false;
-                break;
-            }
-        case "S":
-            {
-                keystate["Down"] = false;
-                break;
-            }
-        case "D":
-            {
-                keystate["Right"] = false;
-                break;
-            }
-        default:
-            {
-                break;
-            }
-    }
 }
 
 function main() {
@@ -126,11 +61,33 @@ function init() {
             });
             players.push(tempPlayer);
         }
-        console.log(player1);
-    })
+    });
+    socket.on('give ball position', function(data) {
+        ball = Ball({
+            xpos: data.xpos,
+            ypos: data.ypos,
+            radius: 20
+        });
+    });
+    if(ball==null){
+        ball = Ball({
+            xpos: 300,
+            ypos: 300,
+            radius: 20
+        });
+    }
 }
 
 function update() {
+    socket.on('move user', function(data) {
+        var indexOfUser = findIndexOfUser(data.id);
+        if (indexOfUser != -1) {
+            players[indexOfUser].updatePos(data);
+        }
+    });
+    socket.on('move ball', function(data){
+       ball.updatePos(data);
+    });
     if (player1 != null) {
         player1.update();
         socket.emit('move', {
@@ -145,10 +102,11 @@ function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    if (player1 != null) player1.draw(ctx);
+    if (ball != null) ball.draw(ctx);
     for (var i = players.length - 1; i >= 0; i--) {
         players[i].draw(ctx);
     }
+    if (player1 != null) player1.draw(ctx);
     ctx.restore();
 }
 socket.on('login', function(data) {

@@ -12,14 +12,14 @@ function Player(options) {
         ctx.arc(xpos, ypos, radius, 0, 2 * Math.PI);
         ctx.stroke();
         if (charge == "Positive") {
-            ctx.fillStyle = "#000000";
-            ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
-            ctx.fillRect(xpos - 2, ypos - (radius - (2 * radius / 5)), 4, (radius * 2 - (4 * radius / 5)));
+            ctx.fillStyle = "#4C4CFF";
         }
         if (charge == "Negative") {
-            ctx.fillStyle = "#000000";
-            ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
+            ctx.fillStyle = "#FF4C4C";
+            //ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
         }
+        ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
+        ctx.fillRect(xpos - 2, ypos - (radius - (2 * radius / 5)), 4, (radius * 2 - (4 * radius / 5)));
         ctx.fillText(name, xpos - radius, ypos - radius - 5);
     }
     player.update = function() {
