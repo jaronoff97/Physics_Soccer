@@ -91,23 +91,26 @@ function main() {
 
 function init() {
     socket.emit('add user', userame);
-    player1 = Player({
-        xpos: initialX,
-        ypos: initalY,
-        radius: 25,
-        charge: "Positive"
-    });
+    socket.on('give position', function(data) {
+        player1 = Player({
+            xpos: data.xpos,
+            ypos: data.ypos,
+            radius: 25,
+            charge: data.charge
+        });
+        console.log(player1);
+    })
 }
 
 function update() {
-    player1.update();
+    if (player1 != null) player1.update();
 }
 
 function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    player1.draw(ctx);
+    if (player1 != null) player1.draw(ctx);
     ctx.restore();
 }
 socket.on('login', function(data) {

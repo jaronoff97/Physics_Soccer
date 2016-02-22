@@ -11,7 +11,28 @@ server.listen(port, function() {
 app.use(express.static(__dirname + '/public'));
 // Chatroom
 var numUsers = 0;
-
+var team1 = [];
+var team2 = [];
+var addUserToTeam = function(username) {
+    var user = {
+        "name": username,
+        "xpos": 0,
+        "ypos": 0,
+        "charge": ""
+    };
+    if (team1.length == team2.length) {
+        user["xpos"] = 100;
+        user["ypos"] = team1.length * 50 + 50;
+        user["charge"] = "Positive";
+        team1.push(user);
+    } else if (team1.length > team2.length) {
+        user["xpos"] = 600;
+        user["ypos"] = team2.length * 50 + 50;
+        user["charge"] = "Positive";
+        team2.push(user);
+    }
+    return (user);
+}
 io.on('connection', function(socket) {
     var addedUser = false;
     // when the client emits 'new message', this listens and executes
@@ -27,8 +48,13 @@ io.on('connection', function(socket) {
         if (addedUser) return;
         // we store the username in the socket session for this client
         socket.username = username;
+        var user = addUserToTeam(username);
+        socket.emit('give position', {
+            xpos: user["xpos"],
+            ypos: user["ypos"],
+            charge: user["charge"]
+        })
         ++numUsers;
-        console.log(io.sockets.clients());
         addedUser = true;
         socket.emit('login', {
             numUsers: numUsers
