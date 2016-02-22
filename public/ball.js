@@ -14,9 +14,9 @@ function Ball(options) {
         ctx.stroke();
     }
     ball.update = function() {
-        ball.xpos += ball.;
+        ball.xpos += ball.dx;
         if (ball.xpos > canvas.width) {
-            ball. *= -1;
+            ball.dx *= -1;
         }
         ball.ypos += ball.dy;
         if (ball.ypos > canvas.height) {
