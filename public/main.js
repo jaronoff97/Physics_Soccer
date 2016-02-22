@@ -4,7 +4,7 @@ canvas.width = 700;
 canvas.height = 700;
 var initialX = 100,
     initalY = 100,
-    userame;
+    username;
 ctx = canvas.getContext('2d');
 var player1 = null;
 var keystate = {
@@ -23,6 +23,9 @@ function findIndexOfUser(id) {
     }
     return (-1);
 }
+socket.on('move user', function(data){
+    players[findIndexOfUser(data.id)].updatePos(data);
+});
 
 function keyDown(event) {
     var keyString = String.fromCharCode(event.keyCode);
@@ -86,7 +89,7 @@ function keyUp(event) {
 
 function main() {
     // create, initiate and append game canvas
-    userame = window.prompt("Enter a username", "Username");
+    username = window.prompt("Enter a username", "Username");
     init(); // initiate game objects
     $(document).keydown(keyDown);
     $(document).keyup(keyUp);
@@ -99,14 +102,15 @@ function main() {
 }
 
 function init() {
-    socket.emit('add user', userame);
+    socket.emit('add user', username);
     socket.on('give position', function(data) {
         player1 = Player({
             xpos: data.xpos,
             ypos: data.ypos,
             radius: 25,
             charge: data.charge,
-            id: data.id
+            id: data.id,
+            name: username
         });
         for (var i = 0; i < data.users.length; i++) {
             var tempPlayer = Player({
@@ -114,7 +118,8 @@ function init() {
                 ypos: data.users[i]["ypos"],
                 radius: 25,
                 charge: data.users[i]["charge"],
-                id: data.users[i]["id"]
+                id: data.users[i]["id"],
+                name: data.users[i]["name"]
             });
             players.push(tempPlayer);
         }
@@ -125,11 +130,11 @@ function init() {
 function update() {
     if (player1 != null) {
         player1.update();
-        /*socket.emit('move', {
+        socket.emit('move', {
             id: player1.getId(),
             xpos: player1.getX(),
             ypos: player1.getY()
-        });*/
+        });
     }
 }
 
@@ -155,7 +160,8 @@ socket.on('user joined', function(data) {
         ypos: data.user["ypos"],
         radius: 25,
         charge: data.user["charge"],
-        id: data.user["id"]
+        id: data.user["id"],
+        name: data.user["name"]
     });
     players.push(tempPlayer);
 });

@@ -13,11 +13,12 @@ app.use(express.static(__dirname + '/public'));
 var numUsers = 0;
 var players = [];
 var team1 = true;
-function guidGenerator() {
-    var S4 = function() {
-       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-    };
-    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+
+function guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 var addUserToTeam = function(username) {
     var user = {
@@ -25,30 +26,31 @@ var addUserToTeam = function(username) {
         "xpos": 0,
         "ypos": 0,
         "charge": "",
-        "id": guidGenerator()
+        "id": guid()
     };
-    if (team1==true) {
+    if (team1 == true) {
         user["xpos"] = 100;
         user["ypos"] = players.length * 50 + 50;
         user["charge"] = "Positive";
         players.push(user);
-        team1=false;
+        team1 = false;
     } else {
         user["xpos"] = 600;
         user["ypos"] = players.length * 50 + 50;
         user["charge"] = "Negative";
         players.push(user);
-        team1=true;
+        team1 = true;
     }
     return (user);
 }
-function findIndexOfUser(id){
+
+function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
-        if(players[i]["id"]==id){
-            return(i);
+        if (players[i]["id"] == id) {
+            return (i);
         }
     }
-    return(-1);
+    return (-1);
 }
 io.on('connection', function(socket) {
     var addedUser = false;
@@ -60,16 +62,19 @@ io.on('connection', function(socket) {
             message: data
         });
     });
-    /*socket.on('move', function(data){
+    socket.on('move', function(data) {
         var idOfUser = findIndexOfUser(data.id);
-        players[idOfUser]["xpos"]=data.xpos;
-        players[idOfUser]["ypos"]=data.ypos;
-        socket.broadcast.emit('move user',{
-            id:idOfUser,
-            xpos: players[idOfUser]["xpos"],
-            ypos:players[idOfUser]["ypos"]
-        });
-    });*/
+        if (idOfUser != -1) {
+            players[idOfUser]["xpos"] = data.xpos;
+            players[idOfUser]["ypos"] = data.ypos;
+            console.log(players[idOfUser]);
+            /*socket.broadcast.emit('move user', {
+                id: idOfUser,
+                xpos: players[idOfUser]["xpos"],
+                ypos: players[idOfUser]["ypos"]
+            });*/
+        }
+    });
     // when the client emits 'add user', this listens and executes
     socket.on('add user', function(username) {
         if (addedUser) return;
@@ -77,13 +82,13 @@ io.on('connection', function(socket) {
         socket.username = username;
         var user = addUserToTeam(username);
         socket.emit('give position', {
-            xpos: user["xpos"],
-            ypos: user["ypos"],
-            charge: user["charge"],
-            id: user["id"],
-            users: players.slice(0,players.length-1)
-        })
-        ++numUsers;
+                xpos: user["xpos"],
+                ypos: user["ypos"],
+                charge: user["charge"],
+                id: user["id"],
+                users: players.slice(0, players.length - 1)
+            })
+            ++numUsers;
         addedUser = true;
         socket.emit('login', {
             numUsers: numUsers
