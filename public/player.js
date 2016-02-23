@@ -21,12 +21,7 @@ function Player(options) {
         ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
         ctx.fillRect(xpos - 2, ypos - (radius - (2 * radius / 5)), 4, (radius * 2 - (4 * radius / 5)));
         ctx.fillText(name, xpos - radius, ypos - radius - 5);
-    }
-    player.update = function() {
-        ypos = keystate["Up"] ? ypos - dx : ypos;
-        ypos = keystate["Down"] ? ypos + dx : ypos;
-        xpos = keystate["Left"] ? xpos - dx : xpos;
-        xpos = keystate["Right"] ? xpos + dx : xpos;
+        console.log("drew");
     }
     player.updatePos = function(data) {
         xpos = data.xpos;

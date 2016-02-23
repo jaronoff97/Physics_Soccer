@@ -28,6 +28,8 @@ var addUserToTeam = function(username) {
         "xpos": 0,
         "ypos": 0,
         "charge": "",
+        "dy": 5,
+        "dx": 5,
         "id": guid()
     };
     if (team1 == true) {
@@ -57,18 +59,19 @@ function findIndexOfUser(id) {
 io.on('connection', function(socket) {
     var addedUser = false;
     // when the client emits 'new message', this listens and executes
-    socket.on('new message', function(data) {
-        // we tell the client to execute 'new message'
-        socket.broadcast.emit('new message', {
-            username: socket.username,
-            message: data
-        });
-    });
-    socket.on('move', function(data) {
+    socket.on('key_state', function(data) {
         var indexOfUser = findIndexOfUser(data.id);
         if (indexOfUser != -1) {
-            players[indexOfUser]["xpos"] = data.xpos;
-            players[indexOfUser]["ypos"] = data.ypos;
+            players[indexOfUser]["ypos"] = data.keystate["Up"] ? players[indexOfUser]["ypos"] - players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
+            players[indexOfUser]["ypos"] = data.keystate["Down"] ? players[indexOfUser]["ypos"] + players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
+            players[indexOfUser]["xpos"] = data.keystate["Left"] ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
+            players[indexOfUser]["xpos"] = data.keystate["Right"] ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
+            // we tell the client to execute 'new message'
+            socket.emit('move user', {
+                id: players[indexOfUser]["id"],
+                xpos: players[indexOfUser]["xpos"],
+                ypos: players[indexOfUser]["ypos"]
+            });
             socket.broadcast.emit('move user', {
                 id: players[indexOfUser]["id"],
                 xpos: players[indexOfUser]["xpos"],
@@ -83,11 +86,8 @@ io.on('connection', function(socket) {
         socket.username = username;
         var user = addUserToTeam(username);
         socket.emit('give position', {
-            xpos: user["xpos"],
-            ypos: user["ypos"],
-            charge: user["charge"],
             id: user["id"],
-            users: players.slice(0, players.length - 1)
+            users: players
         })
         socket.emit('give ball position', {
                 xpos: ballX,

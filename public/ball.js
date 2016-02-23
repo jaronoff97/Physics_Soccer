@@ -13,16 +13,6 @@ function Ball(options) {
         ctx.strokeStyle = '#003300';
         ctx.stroke();
     }
-    ball.update = function() {
-        ball.xpos += ball.dx;
-        if (ball.xpos > canvas.width) {
-            ball.dx *= -1;
-        }
-        ball.ypos += ball.dy;
-        if (ball.ypos > canvas.height) {
-            ball.dy *= -1;
-        }
-    }
     ball.updatePos = function(data){
         ball.xpos = data.xpos;
         ball.ypos = data.ypos;
