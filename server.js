@@ -13,7 +13,11 @@ app.use(express.static(__dirname + '/public'));
 var numUsers = 0;
 var players = [];
 var ballX = 350,
-    ballY = 300;
+    ballY = 300,
+    ballDx = 1,
+    ballDy = 1;
+var canvas_width = 700,
+    canvas_height = 700;
 var team1 = true;
 
 function guid() {
@@ -67,16 +71,6 @@ io.on('connection', function(socket) {
             players[indexOfUser]["xpos"] = data.keystate["Left"] ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
             players[indexOfUser]["xpos"] = data.keystate["Right"] ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
             // we tell the client to execute 'new message'
-            socket.emit('move user', {
-                id: players[indexOfUser]["id"],
-                xpos: players[indexOfUser]["xpos"],
-                ypos: players[indexOfUser]["ypos"]
-            });
-            socket.broadcast.emit('move user', {
-                id: players[indexOfUser]["id"],
-                xpos: players[indexOfUser]["xpos"],
-                ypos: players[indexOfUser]["ypos"]
-            });
         }
     });
     // when the client emits 'add user', this listens and executes
@@ -105,6 +99,32 @@ io.on('connection', function(socket) {
             user: user
         });
     });
+    setInterval(function() {
+        ballX += ballDx;
+        if (ballX > canvas_width || ballX < 0) {
+            ballDx *= -1;
+        }
+        ballY += ballDy;
+        if (ballY > canvas_height || ballY < 0) {
+            ballDy *= -1;
+        }
+        socket.emit('move ball', {
+            xpos: ballX,
+            ypos: ballY
+        });
+        for (var i = 0; i < players.length; i++) {
+            socket.emit('move user', {
+                id: players[i]["id"],
+                xpos: players[i]["xpos"],
+                ypos: players[i]["ypos"]
+            });
+            socket.broadcast.emit('move user', {
+                id: players[i]["id"],
+                xpos: players[i]["xpos"],
+                ypos: players[i]["ypos"]
+            });
+        }
+    }, 10);
     // when the user disconnects.. perform this
     socket.on('disconnect', function() {
         if (addedUser) {

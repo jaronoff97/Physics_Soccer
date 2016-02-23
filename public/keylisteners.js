@@ -26,12 +26,6 @@ function keyDown(event) {
                 break;
             }
     }
-    if (id != null) {
-        socket.emit('key_state', {
-            keystate: keystate,
-            id: id
-        });
-    }
 }
 
 function keyUp(event) {
@@ -61,11 +55,5 @@ function keyUp(event) {
             {
                 break;
             }
-    }
-    if (id != null) {
-        socket.emit('key_state', {
-            keystate: keystate,
-            id: id
-        });
     }
 }

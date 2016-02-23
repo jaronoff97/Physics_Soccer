@@ -21,7 +21,6 @@ function Player(options) {
         ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
         ctx.fillRect(xpos - 2, ypos - (radius - (2 * radius / 5)), 4, (radius * 2 - (4 * radius / 5)));
         ctx.fillText(name, xpos - radius, ypos - radius - 5);
-        console.log("drew");
     }
     player.updatePos = function(data) {
         xpos = data.xpos;

@@ -54,7 +54,6 @@ function init() {
                 name: data.users[i]["name"]
             });
             players.push(tempPlayer);
-            console.log(tempPlayer);
             draw();
         }
     });
@@ -84,6 +83,14 @@ function draw() {
     }
     ctx.restore();
 }
+setInterval(function(){
+    if (id != null) {
+        socket.emit('key_state', {
+            keystate: keystate,
+            id: id
+        });
+    }
+}, 10)
 socket.on('move user', function(data) {
     var indexOfUser = findIndexOfUser(data.id);
     if (indexOfUser != -1) {
@@ -111,7 +118,6 @@ socket.on('user joined', function(data) {
         name: data.user["name"]
     });
     players.push(tempPlayer);
-    console.log("Player Joined");
     draw();
 });
 main();
