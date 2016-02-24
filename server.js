@@ -32,8 +32,8 @@ var addUserToTeam = function(username) {
         "xpos": 0,
         "ypos": 0,
         "charge": "",
-        "dy": 5,
-        "dx": 5,
+        "dy": 10,
+        "dx": 10,
         "id": guid()
     };
     if (team1 == true) {
@@ -132,7 +132,7 @@ io.on('connection', function(socket) {
             ypos: ballY
         });
     }
-    setInterval(moveBall, 10);
+    setInterval(moveBall, 20);
     // when the user disconnects.. perform this
     socket.on('disconnect', function() {
         if (addedUser) {
