@@ -7,7 +7,6 @@ var initialX = 100,
     username;
 ctx = canvas.getContext('2d');
 var ball = null;
-var id = null;
 var keystate = {
     "Up": false,
     "Down": false,
@@ -44,7 +43,6 @@ function init() {
     socket.emit('add user', username);
     socket.on('give position', function(data) {
         for (var i = 0; i < data.users.length; i++) {
-            id = data.id;
             var tempPlayer = Player({
                 xpos: data.users[i]["xpos"],
                 ypos: data.users[i]["ypos"],
@@ -84,12 +82,9 @@ function draw() {
     ctx.restore();
 }
 setInterval(function(){
-    if (id != null) {
         socket.emit('key_state', {
             keystate: keystate,
-            id: id
         });
-    }
 }, 10)
 socket.on('move user', function(data) {
     var indexOfUser = findIndexOfUser(data.id);
@@ -120,4 +115,12 @@ socket.on('user joined', function(data) {
     players.push(tempPlayer);
     draw();
 });
+socket.on('user left', function(data){
+    players.splice(findIndexOfUser(data.id), 1);
+    $("#amount_of_users").empty();
+    $("#amount_of_users").append("<h2> There are " + data.numUsers + " users connected</h2>");
+});
+window.beforeunload = function(){
+    socket.emit("disconnect", {});
+}
 main();

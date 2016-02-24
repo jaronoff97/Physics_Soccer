@@ -64,13 +64,14 @@ io.on('connection', function(socket) {
     var addedUser = false;
     // when the client emits 'new message', this listens and executes
     socket.on('key_state', function(data) {
-        var indexOfUser = findIndexOfUser(data.id);
+        var indexOfUser = findIndexOfUser(socket.client_id);
         if (indexOfUser != -1) {
             players[indexOfUser]["ypos"] = data.keystate["Up"] ? players[indexOfUser]["ypos"] - players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
             players[indexOfUser]["ypos"] = data.keystate["Down"] ? players[indexOfUser]["ypos"] + players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
             players[indexOfUser]["xpos"] = data.keystate["Left"] ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
             players[indexOfUser]["xpos"] = data.keystate["Right"] ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
             // we tell the client to execute 'new message'
+            emitPositions();
         }
     });
     // when the client emits 'add user', this listens and executes
@@ -79,8 +80,12 @@ io.on('connection', function(socket) {
         // we store the username in the socket session for this client
         socket.username = username;
         var user = addUserToTeam(username);
+        console.log(user);
+        var idToGive = user["id"];
+        socket.client_id = idToGive;
+        socket.team = user.charge == "Positive" ? 1 : 2;
         socket.emit('give position', {
-            id: user["id"],
+            id: idToGive,
             users: players
         })
         socket.emit('give ball position', {
@@ -99,19 +104,7 @@ io.on('connection', function(socket) {
             user: user
         });
     });
-    setInterval(function() {
-        ballX += ballDx;
-        if (ballX > canvas_width || ballX < 0) {
-            ballDx *= -1;
-        }
-        ballY += ballDy;
-        if (ballY > canvas_height || ballY < 0) {
-            ballDy *= -1;
-        }
-        socket.emit('move ball', {
-            xpos: ballX,
-            ypos: ballY
-        });
+    var emitPositions = function(){
         for (var i = 0; i < players.length; i++) {
             socket.emit('move user', {
                 id: players[i]["id"],
@@ -124,15 +117,32 @@ io.on('connection', function(socket) {
                 ypos: players[i]["ypos"]
             });
         }
-    }, 10);
+    }
+    var moveBall = function(){
+        ballX += ballDx;
+        if (ballX > canvas_width || ballX < 0) {
+            ballDx *= -1;
+        }
+        ballY += ballDy;
+        if (ballY > canvas_height || ballY < 0) {
+            ballDy *= -1;
+        }
+        socket.emit('move ball', {
+            xpos: ballX,
+            ypos: ballY
+        });
+    }
+    setInterval(moveBall, 10);
     // when the user disconnects.. perform this
     socket.on('disconnect', function() {
         if (addedUser) {
             --numUsers;
-            // echo globally that this client has left
+            players.splice(findIndexOfUser(socket.client_id), 1);
+            team1 = socket.team==1 ? true: false;
             socket.broadcast.emit('user left', {
                 username: socket.username,
-                numUsers: numUsers
+                numUsers: numUsers,
+                id: socket.client_id
             });
         }
     });
