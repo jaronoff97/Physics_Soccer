@@ -65,11 +65,11 @@ io.on('connection', function(socket) {
     // when the client emits 'new message', this listens and executes
     socket.on('key_state', function(data) {
         var indexOfUser = findIndexOfUser(socket.client_id);
-        if (indexOfUser != -1) {
-            players[indexOfUser]["ypos"] = data.keystate["Up"] ? players[indexOfUser]["ypos"] - players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
-            players[indexOfUser]["ypos"] = data.keystate["Down"] ? players[indexOfUser]["ypos"] + players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
-            players[indexOfUser]["xpos"] = data.keystate["Left"] ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
-            players[indexOfUser]["xpos"] = data.keystate["Right"] ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
+        if (indexOfUser != -1 ) {
+            players[indexOfUser]["ypos"] = (data.keystate["Up"] && players[indexOfUser]["ypos"]>0) ? players[indexOfUser]["ypos"] - players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
+            players[indexOfUser]["ypos"] = (data.keystate["Down"] && players[indexOfUser]["ypos"]<canvas_height) ? players[indexOfUser]["ypos"] + players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
+            players[indexOfUser]["xpos"] = (data.keystate["Left"] && players[indexOfUser]["xpos"]>0) ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
+            players[indexOfUser]["xpos"] = (data.keystate["Right"] && players[indexOfUser]["xpos"]<canvas_width) ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
             // we tell the client to execute 'new message'
             emitPositions();
         }
