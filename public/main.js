@@ -31,12 +31,6 @@ function main() {
     $(document).keydown(keyDown);
     $(document).keyup(keyUp);
     draw();
-    /*var loop = function() {
-        update();
-        draw();
-        window.requestAnimationFrame(loop, canvas);
-    };
-    window.requestAnimationFrame(loop, canvas);*/
 }
 
 function init() {
