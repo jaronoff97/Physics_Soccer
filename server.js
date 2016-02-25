@@ -133,7 +133,6 @@ io.on('connection', function(socket) {
         });
     }
     setInterval(moveBall, 20);
-    // when the user disconnects.. perform this
     socket.on('disconnect', function() {
         if (addedUser) {
             --numUsers;
