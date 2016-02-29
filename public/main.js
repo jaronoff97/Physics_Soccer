@@ -65,8 +65,8 @@ function init() {
     }
 }
 function makeGoal(ctx){
-    ctx.fillRect(100,250,50,100);
-    ctx.fillRect(600,250,50,100);
+    ctx.fillRect(50,250,25,100);
+    ctx.fillRect(650,250,25,100);
 }
 function draw() {
     ctx.fillStyle = "#ffffff";
