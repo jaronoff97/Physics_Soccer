@@ -102,7 +102,9 @@ io.on('connection', function(socket) {
         socket.team = user.charge == "Positive" ? 1 : 2;
         socket.emit('give position', {
             id: idToGive,
-            users: players
+            users: players,
+            nGoal: negativeGoal,
+            pGoal: positiveGoal
         })
         socket.emit('give ball position', {
                 xpos: ball.xpos,
