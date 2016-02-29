@@ -15,8 +15,8 @@ var players = [];
 var ball = {
     xpos: 350,
     ypos: 300,
-    dx: (Math.random()*5),
-    dy: (Math.random()*5),
+    dx: (Math.random()*5)+1,
+    dy: (Math.random()*5)+1,
     width: 50,
     height: 50
 }
