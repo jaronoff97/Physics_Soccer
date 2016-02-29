@@ -64,7 +64,9 @@ function init() {
         });
     }
 }
-
+function makeGoal(ctx){
+    ctx.drawRect(100,250,50,100);
+}
 function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
