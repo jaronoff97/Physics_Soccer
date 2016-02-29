@@ -20,10 +20,10 @@ var ball = {
     width: 50,
     height: 50
 }
-var ballX = 350,
-    ballY = 300,
-    ballDx = 1,
-    ballDy = 1;
+var ball.xpos = 350,
+    ball.ypos = 300,
+    ball.dx = 1,
+    ball.dy = 1;
 var canvas_width = 700,
     canvas_height = 700;
 var team1 = true;
@@ -97,15 +97,15 @@ io.on('connection', function(socket) {
             users: players
         })
         socket.emit('give ball position', {
-                xpos: ballX,
-                ypos: ballY
+                xpos: ball.xpos,
+                ypos: ball.ypos
             })
             ++numUsers;
         addedUser = true;
         socket.emit('login', {
             numUsers: numUsers
         });
-        // echo globally (all clients) that a person has connected
+        // echo globall.ypos (all clients) that a person has connected
         socket.broadcast.emit('user joined', {
             username: socket.username,
             numUsers: numUsers,
@@ -127,22 +127,22 @@ io.on('connection', function(socket) {
         }
     }
     var moveBall = function() {
-        ballX += ballDx;
-        if (ballX > canvas_width || ballX < 0) {
-            ballDx *= -1;
+        ball.xpos += ball.dx;
+        if (ball.xpos > canvas_width || ball.xpos < 0) {
+            ball.dx *= -1;
         }
-        ballY += ballDy;
-        if (ballY > canvas_height || ballY < 0) {
-            ballDy *= -1;
+        ball.ypos += ball.dy;
+        if (ball.ypos > canvas_height || ball.ypos < 0) {
+            ball.dy *= -1;
         }
         socket.emit('move ball', {
-            xpos: ballX,
-            ypos: ballY
+            xpos: ball.xpos,
+            ypos: ball.ypos
         });
     }
 
     function checkGoalIntersections() {
-        if (ballX){
+        if (ball.xpos){
 
         }
     }
