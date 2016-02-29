@@ -3,22 +3,22 @@ function keyDown(event) {
     switch (keyString) {
         case "W":
             {
-                keystate["Up"] = true;
+                keystate.Up = true;
                 break;
             }
         case "A":
             {
-                keystate["Left"] = true;
+                keystate.Left = true;
                 break;
             }
         case "S":
             {
-                keystate["Down"] = true;
+                keystate.Down = true;
                 break;
             }
         case "D":
             {
-                keystate["Right"] = true;
+                keystate.Right = true;
                 break;
             }
         default:
@@ -33,22 +33,22 @@ function keyUp(event) {
     switch (keyString) {
         case "W":
             {
-                keystate["Up"] = false;
+                keystate.Up = false;
                 break;
             }
         case "A":
             {
-                keystate["Left"] = false;
+                keystate.Left = false;
                 break;
             }
         case "S":
             {
-                keystate["Down"] = false;
+                keystate.Down = false;
                 break;
             }
         case "D":
             {
-                keystate["Right"] = false;
+                keystate.Right = false;
                 break;
             }
         default:
