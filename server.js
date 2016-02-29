@@ -143,6 +143,7 @@ io.on('connection', function(socket) {
         if (ball.ypos > canvas_height || ball.ypos < 0) {
             ball.dy *= -1;
         }
+        checkGoalIntersections();
         socket.emit('move ball', {
             xpos: ball.xpos,
             ypos: ball.ypos
