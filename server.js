@@ -134,7 +134,9 @@ io.on('connection', function(socket) {
     }
 
     function checkGoalIntersections() {
-        if (ballX)
+        if (ballX){
+
+        }
     }
 
     function intersects(r1, r2) {
