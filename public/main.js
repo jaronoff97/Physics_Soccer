@@ -8,10 +8,10 @@ var initialX = 100,
 ctx = canvas.getContext('2d');
 var ball = null;
 var keystate = {
-    "Up": false,
-    "Down": false,
-    "Left": false,
-    "Right": false
+    Up: false,
+    Down: false,
+    Left: false,
+    Right: false
 };
 var players = [];
 
