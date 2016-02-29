@@ -65,11 +65,11 @@ io.on('connection', function(socket) {
     // when the client emits 'new message', this listens and executes
     socket.on('key_state', function(data) {
         var indexOfUser = findIndexOfUser(socket.client_id);
-        if (indexOfUser != -1 ) {
-            players[indexOfUser]["ypos"] = (data.keystate["Up"] && players[indexOfUser]["ypos"]>0) ? players[indexOfUser]["ypos"] - players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
-            players[indexOfUser]["ypos"] = (data.keystate["Down"] && players[indexOfUser]["ypos"]<canvas_height) ? players[indexOfUser]["ypos"] + players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
-            players[indexOfUser]["xpos"] = (data.keystate["Left"] && players[indexOfUser]["xpos"]>0) ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
-            players[indexOfUser]["xpos"] = (data.keystate["Right"] && players[indexOfUser]["xpos"]<canvas_width) ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
+        if (indexOfUser != -1) {
+            players[indexOfUser]["ypos"] = (data.keystate["Up"] && players[indexOfUser]["ypos"] > 0) ? players[indexOfUser]["ypos"] - players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
+            players[indexOfUser]["ypos"] = (data.keystate["Down"] && players[indexOfUser]["ypos"] < canvas_height) ? players[indexOfUser]["ypos"] + players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
+            players[indexOfUser]["xpos"] = (data.keystate["Left"] && players[indexOfUser]["xpos"] > 0) ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
+            players[indexOfUser]["xpos"] = (data.keystate["Right"] && players[indexOfUser]["xpos"] < canvas_width) ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
             // we tell the client to execute 'new message'
             emitPositions();
         }
@@ -104,7 +104,7 @@ io.on('connection', function(socket) {
             user: user
         });
     });
-    var emitPositions = function(){
+    var emitPositions = function() {
         for (var i = 0; i < players.length; i++) {
             socket.emit('move user', {
                 id: players[i]["id"],
@@ -118,7 +118,7 @@ io.on('connection', function(socket) {
             });
         }
     }
-    var moveBall = function(){
+    var moveBall = function() {
         ballX += ballDx;
         if (ballX > canvas_width || ballX < 0) {
             ballDx *= -1;
@@ -132,12 +132,20 @@ io.on('connection', function(socket) {
             ypos: ballY
         });
     }
+
+    function checkGoalIntersections() {
+        if (ballX)
+    }
+
+    function intersects(r1, r2) {
+        return !(r2.left > r1.right || r2.right < r1.left || r2.top > r1.bottom || r2.bottom < r1.top);
+    }
     setInterval(moveBall, 20);
     socket.on('disconnect', function() {
         if (addedUser) {
             --numUsers;
             players.splice(findIndexOfUser(socket.client_id), 1);
-            team1 = socket.team==1 ? true: false;
+            team1 = socket.team == 1 ? true : false;
             socket.broadcast.emit('user left', {
                 username: socket.username,
                 numUsers: numUsers,
