@@ -76,6 +76,7 @@ function draw() {
     for (var i = players.length - 1; i >= 0; i--) {
         players[i].draw(ctx);
     }
+    makeGoal(ctx);
     ctx.restore();
 }
 setInterval(function(){
