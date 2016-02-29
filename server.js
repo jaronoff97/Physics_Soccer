@@ -36,24 +36,24 @@ function guid() {
 }
 var addUserToTeam = function(username) {
     var user = {
-        "name": username,
-        "xpos": 0,
-        "ypos": 0,
-        "charge": "",
-        "dy": 10,
-        "dx": 10,
-        "id": guid()
+        name: username,
+        xpos: 0,
+        ypos: 0,
+        charge: "",
+        dy: 10,
+        dx: 10,
+        id: guid()
     };
     if (team1 == true) {
-        user["xpos"] = 100;
-        user["ypos"] = players.length * 50 + 50;
-        user["charge"] = "Positive";
+        user.xpos = 100;
+        user.ypos = players.length * 50 + 50;
+        user.charge = "Positive";
         players.push(user);
         team1 = false;
     } else {
-        user["xpos"] = 600;
-        user["ypos"] = players.length * 50 + 50;
-        user["charge"] = "Negative";
+        user.xpos = 600;
+        user.ypos = players.length * 50 + 50;
+        user.charge = "Negative";
         players.push(user);
         team1 = true;
     }
@@ -62,7 +62,7 @@ var addUserToTeam = function(username) {
 
 function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
-        if (players[i]["id"] == id) {
+        if (players[i].id == id) {
             return (i);
         }
     }
@@ -74,10 +74,10 @@ io.on('connection', function(socket) {
     socket.on('key_state', function(data) {
         var indexOfUser = findIndexOfUser(socket.client_id);
         if (indexOfUser != -1) {
-            players[indexOfUser]["ypos"] = (data.keystate["Up"] && players[indexOfUser]["ypos"] > 0) ? players[indexOfUser]["ypos"] - players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
-            players[indexOfUser]["ypos"] = (data.keystate["Down"] && players[indexOfUser]["ypos"] < canvas_height) ? players[indexOfUser]["ypos"] + players[indexOfUser]["dy"] : players[indexOfUser]["ypos"];
-            players[indexOfUser]["xpos"] = (data.keystate["Left"] && players[indexOfUser]["xpos"] > 0) ? players[indexOfUser]["xpos"] - players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
-            players[indexOfUser]["xpos"] = (data.keystate["Right"] && players[indexOfUser]["xpos"] < canvas_width) ? players[indexOfUser]["xpos"] + players[indexOfUser]["dx"] : players[indexOfUser]["xpos"];
+            players[indexOfUser].ypos = (data.keystate.Up && players[indexOfUser].ypos > 0) ? players[indexOfUser].ypos - players[indexOfUser].dy : players[indexOfUser].ypos;
+            players[indexOfUser].ypos = (data.keystate.Down && players[indexOfUser].ypos < canvas_height) ? players[indexOfUser].ypos + players[indexOfUser].dy : players[indexOfUser].ypos;
+            players[indexOfUser].xpos = (data.keystate.Left && players[indexOfUser].xpos > 0) ? players[indexOfUser].xpos - players[indexOfUser].dx : players[indexOfUser].xpos;
+            players[indexOfUser].xpos = (data.keystate.Right && players[indexOfUser].xpos < canvas_width) ? players[indexOfUser].xpos + players[indexOfUser].dx : players[indexOfUser].xpos;
             // we tell the client to execute 'new message'
             emitPositions();
         }
@@ -89,7 +89,7 @@ io.on('connection', function(socket) {
         socket.username = username;
         var user = addUserToTeam(username);
         console.log(user);
-        var idToGive = user["id"];
+        var idToGive = user.id;
         socket.client_id = idToGive;
         socket.team = user.charge == "Positive" ? 1 : 2;
         socket.emit('give position', {
@@ -115,14 +115,14 @@ io.on('connection', function(socket) {
     var emitPositions = function() {
         for (var i = 0; i < players.length; i++) {
             socket.emit('move user', {
-                id: players[i]["id"],
-                xpos: players[i]["xpos"],
-                ypos: players[i]["ypos"]
+                id: players[i].id,
+                xpos: players[i].xpos,
+                ypos: players[i].ypos
             });
             socket.broadcast.emit('move user', {
-                id: players[i]["id"],
-                xpos: players[i]["xpos"],
-                ypos: players[i]["ypos"]
+                id: players[i].id,
+                xpos: players[i].xpos,
+                ypos: players[i].ypos
             });
         }
     }
