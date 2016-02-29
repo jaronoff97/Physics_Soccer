@@ -20,10 +20,6 @@ var ball = {
     width: 50,
     height: 50
 }
-var ball.xpos = 350,
-    ball.ypos = 300,
-    ball.dx = 1,
-    ball.dy = 1;
 var canvas_width = 700,
     canvas_height = 700;
 var team1 = true;
