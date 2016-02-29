@@ -20,6 +20,18 @@ var ball = {
     width: 50,
     height: 50
 }
+var positiveGoal = {
+    xpos: 50,
+    ypos: 250,
+    width: 25,
+    height: 100
+};
+var negativeGoal = {
+    xpos: 650,
+    ypos: 250,
+    width: 25,
+    height: 100
+};
 var canvas_width = 700,
     canvas_height = 700;
 var team1 = true;
@@ -138,7 +150,7 @@ io.on('connection', function(socket) {
     }
 
     function checkGoalIntersections() {
-        if (rectangle_collision(ball.xpos,ball.ypos,ball.width,ball.height, 50, 250, 50, 100)) {
+        if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, 50, 250, 50, 100)) {
 
         }
     }
