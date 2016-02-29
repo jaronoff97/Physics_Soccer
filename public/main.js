@@ -70,8 +70,10 @@ function init() {
 }
 function makeGoal(ctx){
     ctx.fillStyle="#4C4CFF";
+    if(negativeGoal!=null)
     ctx.fillRect(negativeGoal.xpos,negativeGoal.ypos,negativeGoal.width,negativeGoal.height);
     ctx.fillStyle="FF4C4C";
+    if(positiveGoal!=null)
     ctx.fillRect(positiveGoal.xpos,positiveGoal.ypos,positiveGoal.width,positiveGoal.height);
 }
 function draw() {
