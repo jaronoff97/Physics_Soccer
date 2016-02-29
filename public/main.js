@@ -68,14 +68,14 @@ function init() {
         });
     }
 }
-function makeGoal(ctx){
-    ctx.fillStyle="#4C4CFF";
-    if(negativeGoal!=null)
-    ctx.fillRect(negativeGoal.xpos,negativeGoal.ypos,negativeGoal.width,negativeGoal.height);
-    ctx.fillStyle="FF4C4C";
-    if(positiveGoal!=null)
-    ctx.fillRect(positiveGoal.xpos,positiveGoal.ypos,positiveGoal.width,positiveGoal.height);
+
+function makeGoal(ctx) {
+    ctx.fillStyle = "#4C4CFF";
+    if (negativeGoal != null) ctx.fillRect(negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height);
+    ctx.fillStyle = "FF4C4C";
+    if (positiveGoal != null) ctx.fillRect(positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height);
 }
+
 function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -87,10 +87,10 @@ function draw() {
     makeGoal(ctx);
     ctx.restore();
 }
-setInterval(function(){
-        socket.emit('key_state', {
-            keystate: keystate,
-        });
+setInterval(function() {
+    socket.emit('key_state', {
+        keystate: keystate,
+    });
 }, 10)
 socket.on('move user', function(data) {
     var indexOfUser = findIndexOfUser(data.id);
@@ -121,12 +121,12 @@ socket.on('user joined', function(data) {
     players.push(tempPlayer);
     draw();
 });
-socket.on('user left', function(data){
+socket.on('user left', function(data) {
     players.splice(findIndexOfUser(data.id), 1);
     $("#amount_of_users").empty();
     $("#amount_of_users").append("<h2> There are " + data.numUsers + " users connected</h2>");
 });
-window.beforeunload = function(){
+window.beforeunload = function() {
     socket.emit("disconnect", {});
 }
 main();
