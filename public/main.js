@@ -38,12 +38,12 @@ function init() {
     socket.on('give position', function(data) {
         for (var i = 0; i < data.users.length; i++) {
             var tempPlayer = Player({
-                xpos: data.users[i]["xpos"],
-                ypos: data.users[i]["ypos"],
+                xpos: data.users[i].xpos,
+                ypos: data.users[i].ypos,
                 radius: 25,
-                charge: data.users[i]["charge"],
-                id: data.users[i]["id"],
-                name: data.users[i]["name"]
+                charge: data.users[i].charge,
+                id: data.users[i].id,
+                name: data.users[i].name
             });
             players.push(tempPlayer);
             draw();
@@ -105,12 +105,12 @@ socket.on('user joined', function(data) {
     $("#amount_of_users").empty();
     $("#amount_of_users").append("<h2> There are " + data.numUsers + " users connected</h2>");
     var tempPlayer = Player({
-        xpos: data.user["xpos"],
-        ypos: data.user["ypos"],
+        xpos: data.user.xpos,
+        ypos: data.user.ypos,
         radius: 25,
-        charge: data.user["charge"],
-        id: data.user["id"],
-        name: data.user["name"]
+        charge: data.user.charge,
+        id: data.user.id,
+        name: data.user.name
     });
     players.push(tempPlayer);
     draw();
