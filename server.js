@@ -150,7 +150,12 @@ io.on('connection', function(socket) {
     }
 
     function checkGoalIntersections() {
-        if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, 50, 250, 50, 100)) {
+        if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) {
+            ball.xpos=canvas_width/2;
+            ball.ypos=canvas_height/2;
+            ball.dx *= Math.pow(-1,Math.random()*10);
+        }
+        if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) {
 
         }
     }
