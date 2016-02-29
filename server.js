@@ -154,12 +154,16 @@ io.on('connection', function(socket) {
         if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) {
             ball.xpos = canvas_width / 2;
             ball.ypos = canvas_height / 2;
-            ball.dx *= -1;
+
+    ball.dx= ((Math.random()*5)+1)*-1;
+    ball.dy= ((Math.random()*5)+1)*-1;
         }
         if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) {
             ball.xpos = canvas_width / 2;
             ball.ypos = canvas_height / 2;
-            ball.dx *= -1;
+
+    ball.dx= ((Math.random()*5)+1);
+    ball.dy= ((Math.random()*5)+1);
         }
     }
 
