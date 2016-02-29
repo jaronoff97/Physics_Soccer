@@ -13,6 +13,8 @@ var keystate = {
     Left: false,
     Right: false
 };
+var positiveGoal = null;
+var negativeGoal = null;
 var players = [];
 
 function findIndexOfUser(id) {
@@ -45,6 +47,8 @@ function init() {
                 id: data.users[i].id,
                 name: data.users[i].name
             });
+            negativeGoal = data.nGoal;
+            positiveGoal = data.pGoal;
             players.push(tempPlayer);
             draw();
         }
@@ -66,9 +70,9 @@ function init() {
 }
 function makeGoal(ctx){
     ctx.fillStyle="#4C4CFF";
-    ctx.fillRect(50,250,25,100);
+    ctx.fillRect(negativeGoal.xpos,negativeGoal.ypos,negativeGoal.width,negativeGoal.height);
     ctx.fillStyle="FF4C4C";
-    ctx.fillRect(650,250,25,100);
+    ctx.fillRect(positiveGoal.xpos,positiveGoal.ypos,positiveGoal.width,positiveGoal.height);
 }
 function draw() {
     ctx.fillStyle = "#ffffff";
