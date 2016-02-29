@@ -15,8 +15,8 @@ var players = [];
 var ball = {
     xpos: 350,
     ypos: 300,
-    dx: (Math.random()*5)+1,
-    dy: (Math.random()*5)+1,
+    dx: (Math.random() * 5) + 1,
+    dy: (Math.random() * 5) + 1,
     width: 50,
     height: 50
 }
@@ -155,15 +155,15 @@ io.on('connection', function(socket) {
             ball.xpos = canvas_width / 2;
             ball.ypos = canvas_height / 2;
 
-    ball.dx= ((Math.random()*5)+1)*-1;
-    ball.dy= ((Math.random()*5)+1)*-1;
+            ball.dx = ((Math.random() * 5) + 1) * -1;
+            ball.dy = ((Math.random() * 5) + 1) * -1;
         }
         if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) {
             ball.xpos = canvas_width / 2;
             ball.ypos = canvas_height / 2;
 
-    ball.dx= ((Math.random()*5)+1);
-    ball.dy= ((Math.random()*5)+1);
+            ball.dx = ((Math.random() * 5) + 1);
+            ball.dy = ((Math.random() * 5) + 1);
         }
     }
 
