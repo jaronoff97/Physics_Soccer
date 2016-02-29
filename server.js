@@ -12,6 +12,14 @@ app.use(express.static(__dirname + '/public'));
 // Chatroom
 var numUsers = 0;
 var players = [];
+var ball = {
+    xpos: 350,
+    ypos: 300,
+    dx: 1,
+    dy: 1,
+    width: 50,
+    height: 50
+}
 var ballX = 350,
     ballY = 300,
     ballDx = 1,
