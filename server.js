@@ -30,7 +30,7 @@ var positiveGoal = {
     height: 100
 };
 var negativeGoal = {
-    xpos: canvas_width-25,
+    xpos: canvas_width - 25,
     ypos: 250,
     width: 25,
     height: 100
