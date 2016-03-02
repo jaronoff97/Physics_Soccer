@@ -12,7 +12,7 @@ app.use(express.static(__dirname + '/public'));
 // Chatroom
 var numUsers = 0;
 var players = [];
-var canvas_width = 700,
+var canvas_width = 1000,
     canvas_height = 700;
 var team1 = true;
 var ball = {
@@ -25,15 +25,15 @@ var ball = {
 }
 var positiveGoal = {
     xpos: 0,
-    ypos: 250,
-    width: 25,
-    height: 100
+    ypos: 0,
+    width: 10,
+    height: canvas_height
 };
 var negativeGoal = {
-    xpos: canvas_width - 25,
-    ypos: 250,
-    width: 25,
-    height: 100
+    xpos: canvas_width - 10,
+    ypos: 0,
+    width: 10,
+    height: canvas_height
 };
 
 function guid() {

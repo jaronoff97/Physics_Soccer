@@ -1,7 +1,8 @@
 var socket = io();
 canvas = $("#canvas")[0];
-canvas.width = 700;
+canvas.width = 1000;
 canvas.height = 700;
+var global_radius = 50;
 var initialX = 100,
     initalY = 100,
     username;
@@ -42,7 +43,7 @@ function init() {
             var tempPlayer = Player({
                 xpos: data.users[i].xpos,
                 ypos: data.users[i].ypos,
-                radius: 25,
+                radius: global_radius,
                 charge: data.users[i].charge,
                 id: data.users[i].id,
                 name: data.users[i].name
@@ -70,9 +71,9 @@ function init() {
 }
 
 function makeGoal(ctx) {
-    ctx.fillStyle = "#4C4CFF";
+    ctx.fillStyle = "#FF4C4C";
     if (negativeGoal != null) ctx.fillRect(negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height);
-    ctx.fillStyle = "FF4C4C";
+    ctx.fillStyle = "#4C4CFF";
     if (positiveGoal != null) ctx.fillRect(positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height);
 }
 
@@ -82,7 +83,7 @@ function draw() {
     ctx.save();
     if (ball != null) ball.draw(ctx);
     for (var i = players.length - 1; i >= 0; i--) {
-        players[i].draw(ctx);
+        players[i].draw_paddle(ctx);
     }
     makeGoal(ctx);
     ctx.restore();
@@ -113,7 +114,7 @@ socket.on('user joined', function(data) {
     var tempPlayer = Player({
         xpos: data.user.xpos,
         ypos: data.user.ypos,
-        radius: 25,
+        radius: global_radius,
         charge: data.user.charge,
         id: data.user.id,
         name: data.user.name
