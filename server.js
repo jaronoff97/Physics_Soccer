@@ -90,8 +90,8 @@ var addUserToTeam = function(username) {
         xpos: 0,
         ypos: 0,
         charge: "",
-        dy: 3,
-        dx: 3,
+        dy: max_speed + 2,
+        dx: max_speed + 2,
         id: guid()
     };
     if (team1 == true) {
@@ -108,7 +108,6 @@ var addUserToTeam = function(username) {
     players.push(user);
     return (user);
 }
-
 io.on('connection', function(socket) {
     var addedUser = false;
     // when the client emits 'new message', this listens and executes
@@ -128,11 +127,10 @@ io.on('connection', function(socket) {
         socket.username = username;
         var user = addUserToTeam(username);
         console.log(user);
-        var idToGive = user.id;
-        socket.client_id = idToGive;
+        socket.client_id = user.id;
         socket.team = user.charge == "Positive" ? 1 : 2;
         socket.emit('give position', {
-                id: idToGive,
+                id: user.id,
                 users: players,
                 nGoal: negativeGoal,
                 pGoal: positiveGoal,
@@ -144,7 +142,6 @@ io.on('connection', function(socket) {
         socket.emit('login', {
             numUsers: numUsers
         });
-        // echo globall.ypos (all clients) that a person has connected
         socket.broadcast.emit('user joined', {
             username: socket.username,
             numUsers: numUsers,
@@ -166,7 +163,7 @@ io.on('connection', function(socket) {
         }
     }
     setInterval(function() {
-        socket.emit('request position')
+        socket.emit('request position');
         emitPositions();
         moveBall();
         socket.emit('move ball', {
