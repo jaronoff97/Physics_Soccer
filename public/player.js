@@ -1,12 +1,12 @@
 function Player(options) {
+    var player = {};
     var xpos = options.xpos;
     var ypos = options.ypos;
     var radius = options.radius;
     var charge = options.charge;
-    var name = options.name;
+    player.name = options.name;
     var id = options.id;
     var dx = dy = 5;
-    var player = {};
     player.draw = function(ctx) {
         ctx.beginPath();
         ctx.arc(xpos, ypos, radius, 0, 2 * Math.PI);

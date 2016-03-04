@@ -53,8 +53,6 @@ function init() {
             players.push(tempPlayer);
             draw();
         }
-    });
-    socket.on('give ball position', function(data) {
         ball = Ball({
             xpos: data.xpos,
             ypos: data.ypos,
@@ -88,11 +86,11 @@ function draw() {
     makeGoal(ctx);
     ctx.restore();
 }
-setInterval(function() {
+socket.on('request position',function(){
     socket.emit('key_state', {
         keystate: keystate,
     });
-}, 10)
+});
 socket.on('move user', function(data) {
     var indexOfUser = findIndexOfUser(data.id);
     if (indexOfUser != -1) {
@@ -104,9 +102,17 @@ socket.on('move ball', function(data) {
     ball.updatePos(data);
     draw();
 });
+function addPlayerToWindow(){
+    $("#user_names").empty()
+    for (var i = players.length - 1; i >= 0; i--) {
+        console.log(players[i]);
+        $("#user_names").append("<li>"+players[i].name+"</li>");
+    }
+}
 socket.on('login', function(data) {
     $("#amount_of_users").empty();
     $("#amount_of_users").append("<h2> There are " + data.numUsers + " users connected</h2>");
+    addPlayerToWindow();
 });
 socket.on('user joined', function(data) {
     $("#amount_of_users").empty();
@@ -121,11 +127,13 @@ socket.on('user joined', function(data) {
     });
     players.push(tempPlayer);
     draw();
+    addPlayerToWindow();
 });
 socket.on('user left', function(data) {
     players.splice(findIndexOfUser(data.id), 1);
     $("#amount_of_users").empty();
     $("#amount_of_users").append("<h2> There are " + data.numUsers + " users connected</h2>");
+    addPlayerToWindow();
 });
 window.beforeunload = function() {
     socket.emit("disconnect", {});

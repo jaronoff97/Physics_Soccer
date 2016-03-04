@@ -2,7 +2,10 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+var io = require('socket.io', {
+    rememberTransport: false,
+    transports: ['WebSocket', 'Flash Socket', 'AJAX long-polling']
+})(server);
 var port = process.env.PORT || 3000;
 server.listen(port, function() {
     console.log('Server listening at port %d', port);
@@ -15,11 +18,12 @@ var players = [];
 var canvas_width = 1000,
     canvas_height = 700;
 var team1 = true;
+var max_speed = 3;
 var ball = {
     xpos: 350,
     ypos: 300,
-    dx: (Math.random() * 5) + 1,
-    dy: (Math.random() * 5) + 1,
+    dx: (Math.random() * max_speed) + 1,
+    dy: (Math.random() * max_speed) + 1,
     width: 50,
     height: 50
 }
@@ -35,6 +39,44 @@ var negativeGoal = {
     width: 10,
     height: canvas_height
 };
+var moveBall = function() {
+    ball.xpos += ball.dx;
+    if (ball.xpos > canvas_width || ball.xpos < 0) {
+        ball.dx *= -1;
+    }
+    ball.ypos += ball.dy;
+    if (ball.ypos > canvas_height || ball.ypos < 0) {
+        ball.dy *= -1;
+    }
+    checkGoalIntersections();
+}
+
+function checkGoalIntersections() {
+    function rectangle_collision(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2) {
+        return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
+    }
+    if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) {
+        ball.xpos = canvas_width / 2;
+        ball.ypos = canvas_height / 2;
+        ball.dx = ((Math.random() * max_speed) + 1) * -1;
+        ball.dy = ((Math.random() * max_speed) + 1) * -1;
+    }
+    if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) {
+        ball.xpos = canvas_width / 2;
+        ball.ypos = canvas_height / 2;
+        ball.dx = ((Math.random() * max_speed) + 1);
+        ball.dy = ((Math.random() * max_speed) + 1);
+    }
+}
+
+function findIndexOfUser(id) {
+    for (var i = 0; i < players.length; i++) {
+        if (players[i].id == id) {
+            return (i);
+        }
+    }
+    return (-1);
+}
 
 function guid() {
     function s4() {
@@ -48,34 +90,25 @@ var addUserToTeam = function(username) {
         xpos: 0,
         ypos: 0,
         charge: "",
-        dy: 10,
-        dx: 10,
+        dy: 3,
+        dx: 3,
         id: guid()
     };
     if (team1 == true) {
         user.xpos = 100;
         user.ypos = players.length * 50 + 50;
         user.charge = "Positive";
-        players.push(user);
         team1 = false;
     } else {
         user.xpos = 600;
         user.ypos = players.length * 50 + 50;
         user.charge = "Negative";
-        players.push(user);
         team1 = true;
     }
+    players.push(user);
     return (user);
 }
 
-function findIndexOfUser(id) {
-    for (var i = 0; i < players.length; i++) {
-        if (players[i].id == id) {
-            return (i);
-        }
-    }
-    return (-1);
-}
 io.on('connection', function(socket) {
     var addedUser = false;
     // when the client emits 'new message', this listens and executes
@@ -86,8 +119,6 @@ io.on('connection', function(socket) {
             players[indexOfUser].ypos = (data.keystate.Down && players[indexOfUser].ypos < canvas_height) ? players[indexOfUser].ypos + players[indexOfUser].dy : players[indexOfUser].ypos;
             players[indexOfUser].xpos = (data.keystate.Left && players[indexOfUser].xpos > 0) ? players[indexOfUser].xpos - players[indexOfUser].dx : players[indexOfUser].xpos;
             players[indexOfUser].xpos = (data.keystate.Right && players[indexOfUser].xpos < canvas_width) ? players[indexOfUser].xpos + players[indexOfUser].dx : players[indexOfUser].xpos;
-            // we tell the client to execute 'new message'
-            emitPositions();
         }
     });
     // when the client emits 'add user', this listens and executes
@@ -101,12 +132,10 @@ io.on('connection', function(socket) {
         socket.client_id = idToGive;
         socket.team = user.charge == "Positive" ? 1 : 2;
         socket.emit('give position', {
-            id: idToGive,
-            users: players,
-            nGoal: negativeGoal,
-            pGoal: positiveGoal
-        })
-        socket.emit('give ball position', {
+                id: idToGive,
+                users: players,
+                nGoal: negativeGoal,
+                pGoal: positiveGoal,
                 xpos: ball.xpos,
                 ypos: ball.ypos
             })
@@ -136,41 +165,15 @@ io.on('connection', function(socket) {
             });
         }
     }
-    var moveBall = function() {
-        ball.xpos += ball.dx;
-        if (ball.xpos > canvas_width || ball.xpos < 0) {
-            ball.dx *= -1;
-        }
-        ball.ypos += ball.dy;
-        if (ball.ypos > canvas_height || ball.ypos < 0) {
-            ball.dy *= -1;
-        }
-        checkGoalIntersections();
+    setInterval(function() {
+        socket.emit('request position')
+        emitPositions();
+        moveBall();
         socket.emit('move ball', {
             xpos: ball.xpos,
             ypos: ball.ypos
         });
-    }
-
-    function checkGoalIntersections() {
-        if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) {
-            ball.xpos = canvas_width / 2;
-            ball.ypos = canvas_height / 2;
-            ball.dx = ((Math.random() * 5) + 1) * -1;
-            ball.dy = ((Math.random() * 5) + 1) * -1;
-        }
-        if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) {
-            ball.xpos = canvas_width / 2;
-            ball.ypos = canvas_height / 2;
-            ball.dx = ((Math.random() * 5) + 1);
-            ball.dy = ((Math.random() * 5) + 1);
-        }
-    }
-
-    function rectangle_collision(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2) {
-        return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
-    }
-    setInterval(moveBall, 20);
+    }, 10)
     socket.on('disconnect', function() {
         if (addedUser) {
             --numUsers;
