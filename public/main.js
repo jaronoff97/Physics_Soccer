@@ -129,6 +129,10 @@ socket.on('user joined', function(data) {
     draw();
     addPlayerToWindow();
 });
+socket.on('score', function(data){
+    $("#scoreboard").empty();
+    $("#scoreboard").append("<h2> Blue: "+data.team1+"\t Red: "+data.team2+"</h2>");
+});
 socket.on('user left', function(data) {
     players.splice(findIndexOfUser(data.id), 1);
     $("#amount_of_users").empty();

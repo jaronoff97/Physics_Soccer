@@ -13,6 +13,8 @@ server.listen(port, function() {
 // Routing
 app.use(express.static(__dirname + '/public'));
 // Chatroom
+var team1score = 0,
+    team2score = 0;
 var numUsers = 0;
 var players = [];
 var canvas_width = 1000,
@@ -70,7 +72,16 @@ function checkGoalIntersections() {
     function rectangle_collision(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2) {
         return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
     }
-    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) || (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height))) {
+    var reset = false;
+    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height))) {
+        team1score++;
+        reset = true;
+    }
+    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height))) {
+        team2score++;
+        reset = true;
+    }
+    if (reset == true) {
         ball.xpos = canvas_width / 2;
         ball.ypos = canvas_height / 2;
         ball.dx = 0;
@@ -81,6 +92,10 @@ function checkGoalIntersections() {
             players[i].xpos = players[i].charge == "Positive" ? 50 : canvas_width - 50;
             players[i].ypos = players.length * 50 + 50;
         }
+        io.emit('score', {
+            team1: team1score,
+            team2: team2score
+        });
     }
 }
 
@@ -110,6 +125,7 @@ function forceOnBall(player) {
     }
     return (force);
 }
+
 function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
         if (players[i].id == id) {
