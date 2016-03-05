@@ -18,14 +18,15 @@ var players = [];
 var canvas_width = 1000,
     canvas_height = 700;
 var team1 = true;
-var max_speed = 3;
+var max_speed = 4;
 var k = (9 * Math.pow(10, 9));
-var scaled_force = (Math.pow(10, 30));
 var ball = {
     xpos: 350,
     ypos: 300,
     dx: (Math.random() * max_speed) + 1,
     dy: (Math.random() * max_speed) + 1,
+    aX: 0,
+    aY: 0,
     width: 50,
     height: 50,
     mass: (9.1 * Math.pow(10, -31))
@@ -43,14 +44,25 @@ var negativeGoal = {
     height: canvas_height
 };
 var moveBall = function() {
+    ball.dx += ball.aX;
     ball.xpos += ball.dx;
     if (ball.xpos > canvas_width || ball.xpos < 0) {
         ball.dx *= -1;
     }
+    ball.dy += ball.aY;
     ball.ypos += ball.dy;
     if (ball.ypos > canvas_height || ball.ypos < 0) {
         ball.dy *= -1;
     }
+    var netAX = 0,
+        netAY = 0;
+    for (var i = players.length - 1; i >= 0; i--) {
+        var force = forceOnBall(players[i]);
+        netAX += (force.x / (ball.mass * 1000));
+        netAY += ((force.y * 5) / (ball.mass));
+    }
+    ball.aX = netAX;
+    ball.aY = netAY;
     checkGoalIntersections();
 }
 
@@ -58,17 +70,17 @@ function checkGoalIntersections() {
     function rectangle_collision(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2) {
         return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
     }
-    if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) {
+    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) || (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height))) {
         ball.xpos = canvas_width / 2;
         ball.ypos = canvas_height / 2;
-        ball.dx = ((Math.random() * max_speed) + 1) * -1;
-        ball.dy = ((Math.random() * max_speed) + 1) * -1;
-    }
-    if (rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) {
-        ball.xpos = canvas_width / 2;
-        ball.ypos = canvas_height / 2;
-        ball.dx = ((Math.random() * max_speed) + 1);
-        ball.dy = ((Math.random() * max_speed) + 1);
+        ball.dx = 0;
+        ball.dy = 0;
+        ball.aX = 0;
+        ball.aY = 0;
+        for (var i = players.length - 1; i >= 0; i--) {
+            players[i].xpos = players[i].charge == "Positive" ? 50 : canvas_width - 50;
+            players[i].ypos = players.length * 50 + 50;
+        }
     }
 }
 
@@ -93,22 +105,11 @@ function forceOnBall(player) {
         return (total);
     }
     var force = {
-        x: (xIntegral((Math.sqrt(Math.pow(player.xpos-ball.xpos,2))), player.height) * k * density * player.xpos * player.charge_vector),
-        y: (yIntegral((Math.sqrt(Math.pow(player.ypos-ball.ypos,2))), player.height) * k * density * player.charge_vector)
+        x: (xIntegral(r, player.height) * k * density * player.xpos * player.charge_vector * (ball.xpos > player.xpos ? 1 : -1)),
+        y: (yIntegral(r, player.height) * k * density * player.ypos * player.charge_vector * (ball.ypos > player.ypos ? -1 : 1))
     }
     return (force);
 }
-
-function electricField(player) {
-    var subInterval = (Math.pow(10, -3));
-    var total = 0;
-    var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow(player.ypos - ball.ypos, 2)));
-    for (var dq = 0; dq <= player.height; dq += (subInterval)) {
-        total += (k * dq) / (Math.pow(r, 2));
-    }
-    console.log(total * player.charge_vector);
-}
-
 function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
         if (players[i].id == id) {
@@ -136,17 +137,10 @@ var addUserToTeam = function(username) {
         charge_vector: (1.6 * Math.pow(10, -19)),
         id: guid()
     };
-    if (team1 == true) {
-        user.xpos = 100;
-        user.ypos = players.length * 50 + 50;
-        user.charge = "Positive";
-        team1 = false;
-    } else {
-        user.xpos = 600;
-        user.ypos = players.length * 50 + 50;
-        user.charge = "Negative";
-        team1 = true;
-    }
+    user.charge = team1 ? "Positive" : "Negative";
+    team1 = (!team1);
+    user.xpos = user.charge == "Positive" ? 50 : canvas_width - 50;
+    user.ypos = players.length * 50 + 50;
     players.push(user);
     return (user);
 }
@@ -163,15 +157,7 @@ setInterval(function() {
     io.emit('request position');
     emitPositions();
     moveBall();
-    if (players[0] != null) {
-        var force = forceOnBall(players[0]);
-        var acceleration = {
-            x: force.x/ball.mass,
-            y: force.y/ball.mass
-        }
-        console.log(acceleration);
-        //electricField(players[0]);
-    }
+
     io.emit('move ball', {
         xpos: ball.xpos,
         ypos: ball.ypos
