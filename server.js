@@ -73,7 +73,7 @@ function checkGoalIntersections() {
 }
 function forceOnBall(player){
     var density = (player.charge_vector/player.height);
-    var r = Math.sqrt((Math.pow(player.xpos-ball.xpos,2)));
+    var r = Math.sqrt((Math.pow(player.xpos-ball.xpos,2))+(Math.pow(player.ypos-ball.ypos,2)));
     var xIntegral = function(x, l){
         var subInterval = (Math.pow(10,-3));
         var total = 0;
@@ -99,10 +99,11 @@ function forceOnBall(player){
 function electricField(player){
     var subInterval = (Math.pow(10,-3));
     var total=0;
-    var r = Math.sqrt((Math.pow(player.xpos-ball.xpos,2)));
+    var r = Math.sqrt((Math.pow(player.xpos-ball.xpos,2))+(Math.pow(player.ypos-ball.ypos,2)));
     for (var dq = 0; dq <= player.height; dq+=(subInterval)) {
             total+=(k*dq)/(Math.pow(r,2));
         }
+    console.log(total*player.charge_vector);
 }
 function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
@@ -159,12 +160,13 @@ setInterval(function() {
     emitPositions();
     moveBall();
     if(players[0]!=null){
-        var force = forceOnBall(players[0]);
+        /*var force = forceOnBall(players[0]);
         var acceleration = {
             x: force.x/ball.mass,
             y: force.y/ball.mass
         }
-        console.log(acceleration);
+        console.log(acceleration);*/
+        electricField(players[0]);
     }
     io.emit('move ball', {
         xpos: ball.xpos,
