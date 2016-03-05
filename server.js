@@ -108,6 +108,24 @@ var addUserToTeam = function(username) {
     players.push(user);
     return (user);
 }
+var emitPositions = function() {
+    for (var i = 0; i < players.length; i++) {
+        io.emit('move user', {
+            id: players[i].id,
+            xpos: players[i].xpos,
+            ypos: players[i].ypos
+        });
+    }
+}
+setInterval(function() {
+    io.emit('request position');
+    emitPositions();
+    moveBall();
+    io.emit('move ball', {
+        xpos: ball.xpos,
+        ypos: ball.ypos
+    });
+}, 10)
 io.on('connection', function(socket) {
     var addedUser = false;
     // when the client emits 'new message', this listens and executes
@@ -148,29 +166,6 @@ io.on('connection', function(socket) {
             user: user
         });
     });
-    var emitPositions = function() {
-        for (var i = 0; i < players.length; i++) {
-            socket.emit('move user', {
-                id: players[i].id,
-                xpos: players[i].xpos,
-                ypos: players[i].ypos
-            });
-            socket.broadcast.emit('move user', {
-                id: players[i].id,
-                xpos: players[i].xpos,
-                ypos: players[i].ypos
-            });
-        }
-    }
-    setInterval(function() {
-        socket.emit('request position');
-        emitPositions();
-        moveBall();
-        socket.emit('move ball', {
-            xpos: ball.xpos,
-            ypos: ball.ypos
-        });
-    }, 10)
     socket.on('disconnect', function() {
         if (addedUser) {
             --numUsers;
