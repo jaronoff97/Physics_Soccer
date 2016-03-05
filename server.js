@@ -19,13 +19,16 @@ var canvas_width = 1000,
     canvas_height = 700;
 var team1 = true;
 var max_speed = 3;
+var k=(9*Math.pow(10,9));
+var scaled_force=(Math.pow(10,30));
 var ball = {
     xpos: 350,
     ypos: 300,
     dx: (Math.random() * max_speed) + 1,
     dy: (Math.random() * max_speed) + 1,
     width: 50,
-    height: 50
+    height: 50,
+    mass: (9.1*Math.pow(10,-31))
 }
 var positiveGoal = {
     xpos: 0,
@@ -68,7 +71,39 @@ function checkGoalIntersections() {
         ball.dy = ((Math.random() * max_speed) + 1);
     }
 }
-
+function forceOnBall(player){
+    var density = (player.charge_vector/player.height);
+    var r = Math.sqrt((Math.pow(player.xpos-ball.xpos,2)));
+    var xIntegral = function(x, l){
+        var subInterval = (Math.pow(10,-3));
+        var total = 0;
+        for (var ds = (-l/2); ds <= (l/2); ds+=(subInterval)) {
+            total+=(1)/(Math.pow(((Math.pow(x,2)+Math.pow(ds,2))), (3/2)));
+        }
+        return (total);
+    }
+    var yIntegral = function(y, l){
+        var subInterval = (Math.pow(10,-3));
+        var total = 0;
+        for (var ds = (-l/2); ds <= (l/2); ds+=(subInterval)) {
+            total+=(ds)/(Math.pow(((Math.pow(y,2)+Math.pow(ds,2))), (3/2)));
+        }
+        return (total);
+    }
+    var force={
+        x:(xIntegral(player.xpos, player.height)*k*density*player.xpos*player.charge_vector),
+        y:(yIntegral(player.ypos, player.height)*k*density*player.charge_vector)
+    }
+    return (force);
+}
+function electricField(player){
+    var subInterval = (Math.pow(10,-3));
+    var total=0;
+    var r = Math.sqrt((Math.pow(player.xpos-ball.xpos,2)));
+    for (var dq = 0; dq <= player.height; dq+=(subInterval)) {
+            total+=(k*dq)/(Math.pow(r,2));
+        }
+}
 function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
         if (players[i].id == id) {
@@ -92,6 +127,8 @@ var addUserToTeam = function(username) {
         charge: "",
         dy: max_speed + 2,
         dx: max_speed + 2,
+        height: 50,
+        charge_vector: (1.6*Math.pow(10,-19)),
         id: guid()
     };
     if (team1 == true) {
@@ -121,6 +158,14 @@ setInterval(function() {
     io.emit('request position');
     emitPositions();
     moveBall();
+    if(players[0]!=null){
+        var force = forceOnBall(players[0]);
+        var acceleration = {
+            x: force.x/ball.mass,
+            y: force.y/ball.mass
+        }
+        console.log(acceleration);
+    }
     io.emit('move ball', {
         xpos: ball.xpos,
         ypos: ball.ypos
