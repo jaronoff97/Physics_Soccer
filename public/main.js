@@ -2,10 +2,7 @@ var socket = io();
 canvas = $("#canvas")[0];
 canvas.width = 1000;
 canvas.height = 700;
-var global_radius = 50;
-var initialX = 100,
-    initalY = 100,
-    username;
+var username;
 ctx = canvas.getContext('2d');
 var ball = null;
 var keystate = {
@@ -43,7 +40,7 @@ function init() {
             var tempPlayer = Player({
                 xpos: data.users[i].xpos,
                 ypos: data.users[i].ypos,
-                radius: global_radius,
+                radius: data.users[i].height,
                 charge: data.users[i].charge,
                 id: data.users[i].id,
                 name: data.users[i].name
@@ -56,14 +53,14 @@ function init() {
         ball = Ball({
             xpos: data.xpos,
             ypos: data.ypos,
-            radius: 20
+            radius: 10
         });
     });
     if (ball == null) {
         ball = Ball({
             xpos: 300,
             ypos: 300,
-            radius: 20
+            radius: 10
         });
     }
 }
@@ -120,7 +117,7 @@ socket.on('user joined', function(data) {
     var tempPlayer = Player({
         xpos: data.user.xpos,
         ypos: data.user.ypos,
-        radius: global_radius,
+        radius: data.user.height,
         charge: data.user.charge,
         id: data.user.id,
         name: data.user.name
