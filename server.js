@@ -75,6 +75,7 @@ function checkGoalIntersections() {
 function forceOnBall(player) {
     var density = (player.charge_vector / player.height);
     var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow(player.ypos - ball.ypos, 2)));
+    //console.log(player.xpos+"\t"+player.ypos+"\t"+ball.xpos+"\t"+ball.ypos+"\t"+r);
     var xIntegral = function(x, l) {
         var subInterval = (Math.pow(10, -3));
         var total = 0;
@@ -92,8 +93,8 @@ function forceOnBall(player) {
         return (total);
     }
     var force = {
-        x: (xIntegral(player.xpos, player.height) * k * density * player.xpos * player.charge_vector),
-        y: (yIntegral(player.ypos, player.height) * k * density * player.charge_vector)
+        x: (xIntegral((Math.sqrt(Math.pow(player.xpos-ball.xpos,2))), player.height) * k * density * player.xpos * player.charge_vector),
+        y: (yIntegral((Math.sqrt(Math.pow(player.ypos-ball.ypos,2))), player.height) * k * density * player.charge_vector)
     }
     return (force);
 }
@@ -163,13 +164,13 @@ setInterval(function() {
     emitPositions();
     moveBall();
     if (players[0] != null) {
-        /*var force = forceOnBall(players[0]);
+        var force = forceOnBall(players[0]);
         var acceleration = {
             x: force.x/ball.mass,
             y: force.y/ball.mass
         }
-        console.log(acceleration);*/
-        electricField(players[0]);
+        console.log(acceleration);
+        //electricField(players[0]);
     }
     io.emit('move ball', {
         xpos: ball.xpos,
