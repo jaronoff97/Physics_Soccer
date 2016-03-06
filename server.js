@@ -50,8 +50,8 @@ var moveBall = function() {
     ball.xpos += ball.dx;
     ball.dy += ball.aY;
     ball.ypos += ball.dy;
-    if(ball.ypos<0 || ball.ypos>canvas_height){
-        ball.dy*=-1;
+    if (ball.ypos < 0 || ball.ypos > canvas_height) {
+        ball.dy *= -1;
     }
     var netAX = 0,
         netAY = 0;
@@ -64,6 +64,7 @@ var moveBall = function() {
     ball.aY = netAY;
     checkGoalIntersections();
 }
+
 function checkGoalIntersections() {
     function rectangle_collision(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2) {
         return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
@@ -91,6 +92,7 @@ function checkGoalIntersections() {
         });
     }
 }
+
 function forceOnBall(player) {
     var density = (player.charge_vector / player.height);
     var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + (player.height / 2)) - ball.ypos, 2)));
@@ -115,6 +117,7 @@ function forceOnBall(player) {
     }
     return (force);
 }
+
 function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
         if (players[i].id == id) {
@@ -123,6 +126,7 @@ function findIndexOfUser(id) {
     }
     return (-1);
 }
+
 function guid() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -137,12 +141,19 @@ var addUserToTeam = function(username) {
         charge: "",
         dy: max_speed + 2,
         dx: max_speed + 2,
+        upperBound: canvas_width,
+        lowerBound: 0,
         height: 75,
         charge_vector: (1.6 * Math.pow(10, -19)),
         id: guid()
     };
     user.charge = team1 ? "Positive" : "Negative";
     team1 = (!team1);
+    if (!team1) {
+        user.upperBound = canvas_width * 4 / 10;
+    } else {
+        user.lowerBound = canvas_width * 6 / 10;
+    }
     user.xpos = user.charge == "Positive" ? 50 : canvas_width - 50;
     user.ypos = players.length * 50 + 50;
     players.push(user);
@@ -172,14 +183,10 @@ io.on('connection', function(socket) {
     socket.on('key_state', function(data) {
         var indexOfUser = findIndexOfUser(socket.client_id);
         if (indexOfUser != -1) {
-            var boundsx = players[indexOfUser].charge == "Positive" ? canvas_width*4 / 10: canvas_width * 6 / 10;
-            var leftSide = boundsx<canvas_width/2 ? true : false;
-            if (leftSide && players[indexOfUser].xpos >= boundsx) players[indexOfUser].xpos = boundsx;
-            if (!leftSide && players[indexOfUser].xpos <= boundsx) players[indexOfUser].xpos = boundsx;
             players[indexOfUser].ypos = (data.keystate.Up && players[indexOfUser].ypos > 0) ? players[indexOfUser].ypos - players[indexOfUser].dy : players[indexOfUser].ypos;
-            players[indexOfUser].ypos = (data.keystate.Down && players[indexOfUser].ypos < canvas_height) ? players[indexOfUser].ypos + players[indexOfUser].dy : players[indexOfUser].ypos;
-            players[indexOfUser].xpos = (data.keystate.Left && players[indexOfUser].xpos > 0) ? players[indexOfUser].xpos - players[indexOfUser].dx : players[indexOfUser].xpos;
-            players[indexOfUser].xpos = (data.keystate.Right && players[indexOfUser].xpos < canvas_width) ? players[indexOfUser].xpos + players[indexOfUser].dx : players[indexOfUser].xpos;
+            players[indexOfUser].ypos = (data.keystate.Down && (players[indexOfUser].ypos + players[indexOfUser].height) < canvas_height) ? players[indexOfUser].ypos + players[indexOfUser].dy : players[indexOfUser].ypos;
+            players[indexOfUser].xpos = (data.keystate.Left && players[indexOfUser].xpos > players[indexOfUser].lowerBound) ? players[indexOfUser].xpos - players[indexOfUser].dx : players[indexOfUser].xpos;
+            players[indexOfUser].xpos = (data.keystate.Right && players[indexOfUser].xpos < players[indexOfUser].upperBound) ? players[indexOfUser].xpos + players[indexOfUser].dx : players[indexOfUser].xpos;
         }
     });
     // when the client emits 'add user', this listens and executes
@@ -196,6 +203,8 @@ io.on('connection', function(socket) {
                 users: players,
                 nGoal: negativeGoal,
                 pGoal: positiveGoal,
+                upperBound: user.upperBound,
+                lowerBound: user.lowerBound,
                 xpos: ball.xpos,
                 ypos: ball.ypos
             })

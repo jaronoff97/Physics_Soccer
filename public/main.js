@@ -13,6 +13,8 @@ var keystate = {
 };
 var positiveGoal = null;
 var negativeGoal = null;
+var upperBound = 0,
+    lowerBound = 0;
 var players = [];
 
 function findIndexOfUser(id) {
@@ -45,6 +47,8 @@ function init() {
                 id: data.users[i].id,
                 name: data.users[i].name
             });
+            upperBound = data.upperBound;
+            lowerBound = data.lowerBound;
             negativeGoal = data.nGoal;
             positiveGoal = data.pGoal;
             players.push(tempPlayer);
@@ -71,16 +75,25 @@ function makeGoal(ctx) {
     ctx.fillStyle = "#4C4CFF";
     if (positiveGoal != null) ctx.fillRect(positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height);
 }
-
+function drawBounds(ctx, x){
+    for (var i = 0; i < canvas.height; i+=20) {
+        ctx.beginPath();
+        ctx.moveTo(x,i);
+        ctx.lineTo(x,i-10);
+        ctx.stroke();
+    }
+}
 function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
+    makeGoal(ctx);
+    drawBounds(ctx, lowerBound-10);
+    drawBounds(ctx, upperBound+10);
     if (ball != null) ball.draw(ctx);
     for (var i = players.length - 1; i >= 0; i--) {
         players[i].draw_paddle(ctx);
     }
-    makeGoal(ctx);
     ctx.restore();
 }
 socket.on('request position',function(){
@@ -102,7 +115,6 @@ socket.on('move ball', function(data) {
 function addPlayerToWindow(){
     $("#user_names").empty()
     for (var i = players.length - 1; i >= 0; i--) {
-        console.log(players[i]);
         $("#user_names").append("<li>"+players[i].name+"</li>");
     }
 }

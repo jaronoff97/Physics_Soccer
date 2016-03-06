@@ -7,37 +7,17 @@ function Player(options) {
     player.name = options.name;
     var id = options.id;
     var dx = dy = 5;
-    player.draw = function(ctx) {
-        ctx.beginPath();
-        ctx.arc(xpos, ypos, radius, 0, 2 * Math.PI);
+    player.draw_paddle = function(ctx) {
+        ctx.fillStyle = "#000000"
+        ctx.rect(xpos, ypos, 10, radius);
         ctx.stroke();
         if (charge == "Positive") {
             ctx.fillStyle = "#4C4CFF";
         }
         if (charge == "Negative") {
             ctx.fillStyle = "#FF4C4C";
-            //ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
         }
-        ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
-        ctx.fillRect(xpos - 2, ypos - (radius - (2 * radius / 5)), 4, (radius * 2 - (4 * radius / 5)));
-        ctx.fillText(name, xpos - radius, ypos - radius - 5);
-    }
-    player.draw_paddle = function(ctx) {
-        if (charge == "Positive") {
-            ctx.fillStyle = "#4C4CFF";
-        }
-        if (charge == "Negative") {
-            ctx.fillStyle = "#FF4C4C";
-            //ctx.fillRect(xpos - (radius - (2 * radius / 5)), ypos - 2, (radius * 2 - (4 * radius / 5)), 4);
-        }
-        ctx.fillRect(xpos, ypos, 5, radius);
-    }
-    player.rotate_point = function(pointX, pointY, originX, originY, angle) {
-        angle = angle * Math.PI / 180.0;
-        return {
-            x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
-            y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
-        };
+        ctx.fillRect(xpos, ypos, 10, radius);
     }
     player.updatePos = function(data) {
         xpos = data.xpos;
