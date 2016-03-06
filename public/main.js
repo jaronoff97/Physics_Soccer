@@ -13,8 +13,6 @@ var keystate = {
 };
 var positiveGoal = null;
 var negativeGoal = null;
-var upperBound = 0,
-    lowerBound = 0;
 var players = [];
 
 function findIndexOfUser(id) {
@@ -47,8 +45,6 @@ function init() {
                 id: data.users[i].id,
                 name: data.users[i].name
             });
-            upperBound = data.upperBound;
-            lowerBound = data.lowerBound;
             negativeGoal = data.nGoal;
             positiveGoal = data.pGoal;
             players.push(tempPlayer);
@@ -83,13 +79,20 @@ function drawBounds(ctx, x){
         ctx.stroke();
     }
 }
+function drawCenter(ctx){
+    ctx.beginPath();
+        ctx.moveTo(canvas.width/2,0);
+        ctx.lineTo(canvas.width/2,canvas.height);
+        ctx.stroke();
+}
 function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     makeGoal(ctx);
-    drawBounds(ctx, lowerBound-10);
-    drawBounds(ctx, upperBound+10);
+    drawBounds(ctx, (canvas.width*4/10)+10);
+    drawBounds(ctx, (canvas.width*6/10)-10);
+    drawCenter(ctx);
     if (ball != null) ball.draw(ctx);
     for (var i = players.length - 1; i >= 0; i--) {
         players[i].draw_paddle(ctx);

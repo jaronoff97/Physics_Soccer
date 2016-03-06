@@ -174,7 +174,9 @@ setInterval(function() {
     moveBall();
     io.emit('move ball', {
         xpos: ball.xpos,
-        ypos: ball.ypos
+        ypos: ball.ypos,
+        dx: ball.dx,
+        dy: ball.dy
     });
 }, 10)
 io.on('connection', function(socket) {
@@ -203,8 +205,6 @@ io.on('connection', function(socket) {
                 users: players,
                 nGoal: negativeGoal,
                 pGoal: positiveGoal,
-                upperBound: user.upperBound,
-                lowerBound: user.lowerBound,
                 xpos: ball.xpos,
                 ypos: ball.ypos
             })
