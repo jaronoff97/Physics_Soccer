@@ -95,25 +95,26 @@ function checkGoalIntersections() {
 
 function forceOnBall(player) {
     var density = (player.charge_vector / player.height);
-    var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + (player.height / 2)) - ball.ypos, 2)));
     var subInterval = (Math.pow(10, -3));
-    var xIntegral = function(x, l) {
+    var xIntegral = function(l) {
+        var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + (player.height / 2)) - ball.ypos, 2)));
         var total = 0;
         for (var ds = (-l / 2); ds <= (l / 2); ds += (subInterval)) {
-            total += (1) / (Math.pow(((Math.pow(x, 2) + Math.pow(ds, 2))), (3 / 2)));
+            total += (1) / (Math.pow(((Math.pow(r, 2) + Math.pow(ds, 2))), (3 / 2)));
         }
         return (total);
     }
-    var yIntegral = function(y, l) {
+    var yIntegral = function(l) {
+        var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + (player.height / 2)) - ball.ypos, 2)));
         var total = 0;
         for (var ds = (-l / 2); ds <= (l / 2); ds += (subInterval)) {
-            total += (ds) / (Math.pow(((Math.pow(y, 2) + Math.pow(ds, 2))), (3 / 2)));
+            total += (ds) / (Math.pow(((Math.pow(r, 2) + Math.pow(ds, 2))), (3 / 2)));
         }
         return (total);
     }
     var force = {
-        x: (xIntegral(r, player.height) * k * density * player.xpos * player.charge_vector * (ball.xpos > player.xpos ? 1 : -1)),
-        y: (yIntegral(r, player.height) * k * density * player.ypos * player.charge_vector * (ball.ypos > player.ypos ? -1 : 1))
+        x: (xIntegral(player.height) * k * density * player.xpos * player.charge_vector * (ball.xpos > player.xpos ? 1 : -1)),
+        y: (yIntegral(player.height) * k * density * player.ypos * player.charge_vector * (ball.ypos > player.ypos ? -1 : 1))
     }
     return (force);
 }
