@@ -64,24 +64,8 @@ var moveBall = function() {
     ball.aY = netAY;
     checkGoalIntersections();
 }
-
-function checkGoalIntersections() {
-    function rectangle_collision(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2) {
-        return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
-    }
-    var reset = false;
-    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) || ball.xpos<0) {
-        team1score++;
-        console.log("TEAM 1 SCORED");
-        reset = true;
-    }
-    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) || ball.xpos>canvas_width) {
-        team2score++;
-        console.log("TEAM 1 SCORED");
-        reset = true;
-    }
-    if (reset == true) {
-        ball.xpos = canvas_width / 2;
+function reset(){
+    ball.xpos = canvas_width / 2;
         ball.ypos = canvas_height / 2;
         ball.dx = ball.dy = ball.aX = ball.aY = 0;
         for (var i = players.length - 1; i >= 0; i--) {
@@ -92,6 +76,18 @@ function checkGoalIntersections() {
             team1: team1score,
             team2: team2score
         });
+}
+function checkGoalIntersections() {
+    function rectangle_collision(x_1, y_1, width_1, height_1, x_2, y_2, width_2, height_2) {
+        return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
+    }
+    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) || ball.xpos<0) {
+        team1score++;
+        reset();
+    }
+    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) || ball.xpos>canvas_width) {
+        team2score++;
+        reset();
     }
 }
 
@@ -220,6 +216,8 @@ io.on('connection', function(socket) {
             numUsers: numUsers,
             user: user
         });
+        team1score = team2score = 0;
+        reset();
     });
     socket.on('disconnect', function() {
         if (addedUser) {
