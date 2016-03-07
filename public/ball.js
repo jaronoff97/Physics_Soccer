@@ -5,7 +5,7 @@ function Ball(options) {
     ball.radius = options.radius;
     ball.dx = ball.dy = 0;
     ball.draw = function(ctx) {
-        drawLine(ctx);
+        //drawLine(ctx);
         ctx.beginPath();
         ctx.arc(ball.xpos, ball.ypos, ball.radius, 0, 2 * Math.PI, false);
         ctx.fillStyle = '#4CFF4C';

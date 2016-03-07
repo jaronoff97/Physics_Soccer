@@ -70,12 +70,14 @@ function checkGoalIntersections() {
         return !(x_1 > x_2 + width_2 || x_1 + width_1 < x_2 || y_1 > y_2 + height_2 || y_1 + height_1 < y_2)
     }
     var reset = false;
-    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height))) {
+    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, negativeGoal.xpos, negativeGoal.ypos, negativeGoal.width, negativeGoal.height)) || ball.xpos<0) {
         team1score++;
+        console.log("TEAM 1 SCORED");
         reset = true;
     }
-    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height))) {
+    if ((rectangle_collision(ball.xpos, ball.ypos, ball.width, ball.height, positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height)) || ball.xpos>canvas_width) {
         team2score++;
+        console.log("TEAM 1 SCORED");
         reset = true;
     }
     if (reset == true) {
@@ -95,26 +97,25 @@ function checkGoalIntersections() {
 
 function forceOnBall(player) {
     var density = (player.charge_vector / player.height);
+    var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + (player.height / 2)) - ball.ypos, 2)));
     var subInterval = (Math.pow(10, -3));
-    var xIntegral = function(l) {
+    var xIntegral = function(x, l) {
         var total = 0;
-        for (var s = (-l / 2); s <= (l / 2); s += (subInterval)) {
-            var x = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + ((player.height / 2))) - ball.ypos, 2)));
-            total += (1) / (Math.pow(((Math.pow(x, 2) + Math.pow(s, 2))), (3 / 2)));
+        for (var ds = (-l / 2); ds <= (l / 2); ds += (subInterval)) {
+            total += (1) / (Math.pow(((Math.pow(x, 2) + Math.pow(ds, 2))), (3 / 2)));
         }
         return (total);
     }
-    var yIntegral = function(l) {
+    var yIntegral = function(y, l) {
         var total = 0;
-        for (var s = (-l / 2); s <= (l / 2); s += (subInterval)) {
-            y = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + ((player.height / 2))) - ball.ypos, 2)));
-            total += (s) / (Math.pow(((Math.pow(y, 2) + Math.pow(s, 2))), (3 / 2)));
+        for (var ds = (-l / 2); ds <= (l / 2); ds += (subInterval)) {
+            total += (ds) / (Math.pow(((Math.pow(y, 2) + Math.pow(ds, 2))), (3 / 2)));
         }
         return (total);
     }
     var force = {
-        x: (xIntegral(player.height) * k * density * player.xpos * player.charge_vector * (ball.xpos > player.xpos ? 1 : -1)),
-        y: (yIntegral(player.height) * k * density * player.ypos * player.charge_vector * (ball.ypos > player.ypos ? -1 : 1))
+        x: (xIntegral(r, player.height) * k * density * player.xpos * player.charge_vector * (ball.xpos > player.xpos ? 1 : -1)),
+        y: (yIntegral(r, player.height) * k * density * player.ypos * player.charge_vector * (ball.ypos > player.ypos ? -1 : 1))
     }
     return (force);
 }
