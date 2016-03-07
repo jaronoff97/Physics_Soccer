@@ -31,7 +31,7 @@ var ball = {
     aY: 0,
     width: 50,
     height: 50,
-    mass: (9.1 * Math.pow(10, -31))
+    mass: 9.1 * Math.pow(10, -31)
 }
 var positiveGoal = {
     xpos: 0,
@@ -57,8 +57,8 @@ var moveBall = function() {
         netAY = 0;
     for (var i = players.length - 1; i >= 0; i--) {
         var force = forceOnBall(players[i]);
-        netAX += (force.x / (ball.mass * 100));
-        netAY += ((force.y * 10) / (ball.mass));
+        netAX += (force.x/(ball.mass));
+        netAY += ((force.y/ball.mass));
     }
     ball.aX = netAX;
     ball.aY = netAY;
@@ -84,7 +84,7 @@ function checkGoalIntersections() {
         ball.dx = ball.dy = ball.aX = ball.aY = 0;
         for (var i = players.length - 1; i >= 0; i--) {
             players[i].xpos = players[i].charge == "Positive" ? 50 : canvas_width - 50;
-            players[i].ypos = players.length * 50 + 50;
+            players[i].ypos = canvas_height/2+30;
         }
         io.emit('score', {
             team1: team1score,
@@ -94,27 +94,40 @@ function checkGoalIntersections() {
 }
 
 function forceOnBall(player) {
+
     var density = (player.charge_vector / player.height);
     var subInterval = (Math.pow(10, -3));
+    var newbx = ball.xpos - player.xpos;
+    var newrodtop = player.height/2;
+    var newrodbottom = -player.height/2;
+    var newby = -ball.ypos+(player.ypos+newrodtop);
+
     var xIntegral = function(l) {
-        var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + (player.height / 2)) - ball.ypos, 2)));
+
         var total = 0;
-        for (var ds = (-l / 2); ds <= (l / 2); ds += (subInterval)) {
-            total += (1) / (Math.pow(((Math.pow(r, 2) + Math.pow(ds, 2))), (3 / 2)));
+
+        for (var s = (-l/2); s <= (l / 2); s += (subInterval)) {
+
+            total += 1/Math.pow(((newby-s)*(newby-s)+(newbx)*(newbx)),(3/2));
         }
-        return (total);
+        return (-total);
     }
+
     var yIntegral = function(l) {
-        var r = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + (player.height / 2)) - ball.ypos, 2)));
-        var total = 0;
-        for (var ds = (-l / 2); ds <= (l / 2); ds += (subInterval)) {
-            total += (ds) / (Math.pow(((Math.pow(r, 2) + Math.pow(ds, 2))), (3 / 2)));
+
+         var total = 0;
+
+        for (var s = (-l / 2); s <= (l / 2); s += (subInterval)) {
+
+            total += (newby-s)/Math.pow((newby-s)*(newby-s)+(newbx)*(newbx),(3/2));
         }
         return (total);
     }
+
+
     var force = {
-        x: (xIntegral(player.height) * k * density * player.xpos * player.charge_vector * (ball.xpos > player.xpos ? 1 : -1)),
-        y: (yIntegral(player.height) * k * density * player.ypos * player.charge_vector * (ball.ypos > player.ypos ? -1 : 1))
+        x: (xIntegral(player.height) * k * density * player.xpos * player.charge_vector/100),
+        y: (yIntegral(player.height) * k * density * player.ypos * player.charge_vector/1000)
     }
     return (force);
 }
