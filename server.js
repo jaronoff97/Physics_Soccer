@@ -146,12 +146,8 @@ var addUserToTeam = function(username) {
         id: guid()
     };
     user.charge = team1 ? "Positive" : "Negative";
+    user.upperBound = team1 ? canvas_width * 4 / 10 : canvas_width * 6 / 10;
     team1 = (!team1);
-    if (!team1) {
-        user.upperBound = canvas_width * 4 / 10;
-    } else {
-        user.lowerBound = canvas_width * 6 / 10;
-    }
     user.xpos = user.charge == "Positive" ? 50 : canvas_width - 50;
     user.ypos = players.length * 50 + 50;
     players.push(user);
@@ -193,6 +189,8 @@ io.on('connection', function(socket) {
     socket.on('add user', function(username) {
         if (addedUser) return;
         // we store the username in the socket session for this client
+        team1score = team2score = 0;
+        reset();
         socket.username = username;
         var user = addUserToTeam(username);
         console.log(user);
@@ -216,8 +214,6 @@ io.on('connection', function(socket) {
             numUsers: numUsers,
             user: user
         });
-        team1score = team2score = 0;
-        reset();
     });
     socket.on('disconnect', function() {
         if (addedUser) {
