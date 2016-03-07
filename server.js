@@ -57,8 +57,8 @@ var moveBall = function() {
         netAY = 0;
     for (var i = players.length - 1; i >= 0; i--) {
         var force = forceOnBall(players[i]);
-        netAX += (force.x / (ball.mass));
-        netAY += ((force.y) / (ball.mass));
+        netAX += (force.x / (ball.mass * 100));
+        netAY += ((force.y * 10) / (ball.mass));
     }
     ball.aX = netAX;
     ball.aY = netAY;
@@ -99,16 +99,16 @@ function forceOnBall(player) {
     var xIntegral = function(l) {
         var total = 0;
         for (var s = (-l / 2); s <= (l / 2); s += (subInterval)) {
-            var x = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + ((player.height / 2))-s) - ball.ypos, 2)));
-            total += (1) / (Math.pow(((Math.pow(x, 2))), (3 / 2)));
+            var x = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + ((player.height / 2))) - ball.ypos, 2)));
+            total += (1) / (Math.pow(((Math.pow(x, 2) + Math.pow(s, 2))), (3 / 2)));
         }
         return (total);
     }
     var yIntegral = function(l) {
         var total = 0;
         for (var s = (-l / 2); s <= (l / 2); s += (subInterval)) {
-            y = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + ((player.height / 2))-s) - ball.ypos, 2)));
-            total += (s) / (Math.pow(((Math.pow(y, 2))), (3 / 2)));
+            y = Math.sqrt((Math.pow(player.xpos - ball.xpos, 2)) + (Math.pow((player.ypos + ((player.height / 2))) - ball.ypos, 2)));
+            total += (s) / (Math.pow(((Math.pow(y, 2) + Math.pow(s, 2))), (3 / 2)));
         }
         return (total);
     }
