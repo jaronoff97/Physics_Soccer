@@ -70,7 +70,7 @@ function reset(){
         ball.dx = ball.dy = ball.aX = ball.aY = 0;
         for (var i = players.length - 1; i >= 0; i--) {
             players[i].xpos = players[i].charge == "Positive" ? 50 : canvas_width - 50;
-            players[i].ypos = canvas_height / 2 + 30;
+            user.ypos = players.length * 50 + 50;
         }
         io.emit('score', {
             team1: team1score,
