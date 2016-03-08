@@ -9,8 +9,11 @@ var keystate = {
     Up: false,
     Down: false,
     Left: false,
-    Right: false
+    Right: false,
+    Reverse_dir: true,
+    Burst: false
 };
+var powerShotCount=0;
 var positiveGoal = null;
 var negativeGoal = null;
 var players = [];
@@ -71,27 +74,30 @@ function makeGoal(ctx) {
     ctx.fillStyle = "#4C4CFF";
     if (positiveGoal != null) ctx.fillRect(positiveGoal.xpos, positiveGoal.ypos, positiveGoal.width, positiveGoal.height);
 }
-function drawBounds(ctx, x){
-    for (var i = 0; i < canvas.height; i+=20) {
+
+function drawBounds(ctx, x) {
+    for (var i = 0; i < canvas.height; i += 20) {
         ctx.beginPath();
-        ctx.moveTo(x,i);
-        ctx.lineTo(x,i-10);
+        ctx.moveTo(x, i);
+        ctx.lineTo(x, i - 10);
         ctx.stroke();
     }
 }
-function drawCenter(ctx){
+
+function drawCenter(ctx) {
     ctx.beginPath();
-        ctx.moveTo(canvas.width/2,0);
-        ctx.lineTo(canvas.width/2,canvas.height);
-        ctx.stroke();
+    ctx.moveTo(canvas.width / 2, 0);
+    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.stroke();
 }
+
 function draw() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     makeGoal(ctx);
-    drawBounds(ctx, (canvas.width*4/10)+10);
-    drawBounds(ctx, (canvas.width*6/10)-10);
+    drawBounds(ctx, (canvas.width * 4 / 10) + 10);
+    drawBounds(ctx, (canvas.width * 6 / 10) - 10);
     drawCenter(ctx);
     if (ball != null) ball.draw(ctx);
     for (var i = players.length - 1; i >= 0; i--) {
@@ -99,7 +105,7 @@ function draw() {
     }
     ctx.restore();
 }
-socket.on('request position',function(){
+socket.on('request position', function() {
     socket.emit('key_state', {
         keystate: keystate,
     });
@@ -115,10 +121,11 @@ socket.on('move ball', function(data) {
     ball.updatePos(data);
     draw();
 });
-function addPlayerToWindow(){
+
+function addPlayerToWindow() {
     $("#user_names").empty()
     for (var i = players.length - 1; i >= 0; i--) {
-        $("#user_names").append("<li>"+players[i].name+"</li>");
+        $("#user_names").append("<li>" + players[i].name + "</li>");
     }
 }
 socket.on('login', function(data) {
@@ -141,9 +148,9 @@ socket.on('user joined', function(data) {
     draw();
     addPlayerToWindow();
 });
-socket.on('score', function(data){
+socket.on('score', function(data) {
     $("#scoreboard").empty();
-    $("#scoreboard").append("<h2> Blue: "+data.team1+"\t Red: "+data.team2+"</h2>");
+    $("#scoreboard").append("<h2> Blue: " + data.team1 + "\t Red: " + data.team2 + "</h2>");
 });
 socket.on('user left', function(data) {
     players.splice(findIndexOfUser(data.id), 1);

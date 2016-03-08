@@ -17,6 +17,7 @@ function Player(options) {
         if (charge == "Negative") {
             ctx.fillStyle = "#FF4C4C";
         }
+        ctx.fillText(player.name,xpos, ypos-10);
         ctx.fillRect(xpos, ypos, 10, radius);
     }
     player.updatePos = function(data) {
