@@ -1,6 +1,9 @@
 // Setup basic express server
 var express = require('express');
 var app = express();
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/physics_soccer');
+var db = mongoose.connection;
 var server = require('http').createServer(app);
 var io = require('socket.io', {
     rememberTransport: false,
@@ -10,6 +13,17 @@ var port = process.env.PORT || 3000;
 server.listen(port, function() {
     console.log('Server listening at port %d', port);
 });
+var mongo_user_schema = mongoose.Schema({
+    username: String,
+    event: [{
+        xpos: Number,
+        ypos: Number,
+        accelerationX: Number,
+        accelerationY: Number,
+        playerScore: Number
+    }]
+});
+var Player = mongoose.model('Player', mongo_user_schema);
 // Routing
 app.use(express.static(__dirname + '/public'));
 // Chatroom
@@ -17,6 +31,7 @@ var team1score = 0,
     team2score = 0;
 var numUsers = 0;
 var players = [];
+var mongo_players = [];
 var canvas_width = 1000,
     canvas_height = 700;
 var team1 = true;
@@ -95,7 +110,6 @@ function checkGoalIntersections() {
 
 function forceOnBall(player) {
     var density = (player.charge_vector / player.height);
-
     var subInterval = (Math.pow(10, -3));
     var newbx = ball.xpos - player.xpos;
     var newrodtop = player.height / 2;
@@ -156,6 +170,16 @@ var addUserToTeam = function(username) {
         reverse_dir: false,
         id: guid()
     };
+    var temp_player = new Player({
+        name: user.username
+    });
+    temp_player.event.push({
+        xpos: user.xpos,
+        ypos: user.ypos,
+        accelerationX: user.ax,
+        accelerationY: user.ay,
+        playerScore: 0
+    });
     user.charge = team1 ? "Positive" : "Negative";
     user.upperBound = team1 ? canvas_width * 4 / 10 : canvas_width;
     user.lowerBound = team1 ? 0 : canvas_width * 6 / 10;
@@ -163,10 +187,18 @@ var addUserToTeam = function(username) {
     user.xpos = user.charge == "Positive" ? 50 : canvas_width - 50;
     user.ypos = players.length * 50 + 50;
     players.push(user);
+    mongo_players.push(temp_player);
     return (user);
 }
 var emitPositions = function() {
     for (var i = 0; i < players.length; i++) {
+        mongo_players[i].event.push({
+            xpos: players[i].xpos,
+            ypos: players[i].ypos,
+            accelerationX: players[i].ax,
+            accelerationY: players[i].ay,
+            playerScore: (players[i].charge == "Positive" ? team1score : team2score)
+        });
         io.emit('move user', {
             id: players[i].id,
             xpos: players[i].xpos,
@@ -202,8 +234,6 @@ io.on('connection', function(socket) {
             players[indexOfUser].ay = (data.keystate.Down && players[indexOfUser].ay < max_speed) ? players[indexOfUser].ay + 1 : players[indexOfUser].ay;
             players[indexOfUser].ax = (data.keystate.Left && players[indexOfUser].ax > -max_speed) ? players[indexOfUser].ax - .5 : players[indexOfUser].ax;
             players[indexOfUser].ax = (data.keystate.Right && players[indexOfUser].ax < max_speed) ? players[indexOfUser].ax + .5 : players[indexOfUser].ax;
-            //players[indexOfUser].dy = (players[indexOfUser].dy >= -max_speed && players[indexOfUser].dy <= max_speed) ? players[indexOfUser].dy + players[indexOfUser].ay : players[indexOfUser].dy;
-            //players[indexOfUser].dx = (players[indexOfUser].dx >= -max_speed && players[indexOfUser].dx <= max_speed) ? players[indexOfUser].dx + players[indexOfUser].ax : players[indexOfUser].ax;
             players[indexOfUser].xpos += players[indexOfUser].ax;
             players[indexOfUser].ypos += players[indexOfUser].ay;
             if (!(players[indexOfUser].xpos > players[indexOfUser].lowerBound && players[indexOfUser].xpos < players[indexOfUser].upperBound)) {
@@ -224,7 +254,6 @@ io.on('connection', function(socket) {
         reset();
         socket.username = username;
         var user = addUserToTeam(username);
-        console.log(user);
         socket.client_id = user.id;
         socket.team = user.charge == "Positive" ? 1 : 2;
         socket.emit('give position', {
@@ -249,7 +278,13 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         if (addedUser) {
             --numUsers;
-            players.splice(findIndexOfUser(socket.client_id), 1);
+            var disconnectedUser = findIndexOfUser(socket.client_id);
+            players.splice(disconnectedUser, 1);
+            mongo_players[disconnectedUser].save(function(err, temp_player) {
+                if (err) return console.error(err);
+                console.log(temp_player);
+            });
+            mongo_players.splice(disconnectedUser, 1);
             team1 = socket.team == 1 ? true : false;
             socket.broadcast.emit('user left', {
                 username: socket.username,
