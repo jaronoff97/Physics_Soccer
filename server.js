@@ -18,8 +18,7 @@ var mongo_user_schema = mongoose.Schema({
     event: [{
         xpos: Number,
         ypos: Number,
-        accelerationX: Number,
-        accelerationY: Number,
+        reverse_dir: Boolean,
         playerScore: Number
     }]
 });
@@ -176,8 +175,7 @@ var addUserToTeam = function(username) {
     temp_player.event.push({
         xpos: user.xpos,
         ypos: user.ypos,
-        accelerationX: user.ax,
-        accelerationY: user.ay,
+        reverse_dir: user.reverse_dir,
         playerScore: 0
     });
     user.charge = team1 ? "Positive" : "Negative";
@@ -195,8 +193,7 @@ var emitPositions = function() {
         mongo_players[i].event.push({
             xpos: players[i].xpos,
             ypos: players[i].ypos,
-            accelerationX: players[i].ax,
-            accelerationY: players[i].ay,
+            reverse_dir: players[i].reverse_dir,
             playerScore: (players[i].charge == "Positive" ? team1score : team2score)
         });
         io.emit('move user', {
