@@ -17,6 +17,7 @@ var powerShotCount=0;
 var positiveGoal = null;
 var negativeGoal = null;
 var players = [];
+var powerShotCount = 0;
 
 function findIndexOfUser(id) {
     for (var i = 0; i < players.length; i++) {
@@ -150,6 +151,11 @@ socket.on('user joined', function(data) {
 });
 socket.on('score', function(data) {
     $("#scoreboard").empty();
+    if(data.team1%6==0 || data.team2%6==0){
+        powerShotCount=0;
+        $("#reversed_direction").empty()
+        $("#reversed_direction").append("<h1>You now have three more reverses!</h1>");
+    }
     $("#scoreboard").append("<h2> Blue: " + data.team1 + "\t Red: " + data.team2 + "</h2>");
 });
 socket.on('user left', function(data) {

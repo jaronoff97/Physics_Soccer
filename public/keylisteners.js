@@ -1,4 +1,4 @@
-var powerShotCount = 0;
+
 
 function keyDown(event) {
     var keyString = String.fromCharCode(event.keyCode);
